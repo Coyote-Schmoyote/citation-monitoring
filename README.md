@@ -17,3 +17,14 @@ A simple Streamlit app showing the GDP of different countries in the world.
    ```
    $ streamlit run streamlit_app.py
    ```
+
+3. To stage all modified files:
+git add .
+
+4. Once changes are staged, commit them with a message:
+git commit -m "Your commit message here"
+
+5. Push the committed changes to your GitHub repository:
+git push
+
+
