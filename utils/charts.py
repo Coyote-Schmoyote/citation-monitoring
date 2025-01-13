@@ -1,6 +1,10 @@
 import plotly.express as px
+import streamlit as st
 import plotly.graph_objects as go
+import plotly.io as pio 
 import numpy as np
+
+colors = px.colors.qualitative.Pastel
 
 def output_type_bar_chart(data):
     # Normalize column names for consistent access
@@ -16,7 +20,6 @@ def output_type_bar_chart(data):
 
     # Count occurrences of each type of EIGE output
     topic_counts = data[required_column].value_counts()
-    colors = px.colors.qualitative.Pastel
 
     # Create the bar chart
     fig = go.Figure(data=[go.Bar(
@@ -36,7 +39,7 @@ def output_type_bar_chart(data):
     )
     fig.update_layout(
         width=800,
-        title="Types of EIGE Output",
+        title="Count of EIGE Outputs by type",
         title_font=dict(family="Verdana", size=20, color=colors[0]),
         font_size=12,
         plot_bgcolor="white",
@@ -109,7 +112,11 @@ def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600)
     )
 
     # Update layout with specified height
-    fig.update_layout(height=height)
+    fig.update_layout(
+    height=height,
+    title="EIGE Output and its types",
+    title_font=dict(family="Verdana", size=20, color=colors[0]),
+    font_size=12,)
 
     return fig
 

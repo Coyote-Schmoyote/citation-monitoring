@@ -30,7 +30,7 @@ st.markdown("""
             """)
 # Bar Chart
 st.plotly_chart(output_type_bar_chart(data))
-    
+
 st.subheader("1.2 Type of output referenced")
 st.markdown("...")
     
