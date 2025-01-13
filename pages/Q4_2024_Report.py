@@ -57,8 +57,8 @@ st.markdown("""
 ## 1.3 Journal – journal publishing the document citing EIGE
             """)
 
-st.divider()
 
+#-----DOWNLOAD
 # Save the DataFrame to an Excel file in memory
 excel_file = BytesIO()
 with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
@@ -69,6 +69,7 @@ excel_file.seek(0)
 st.download_button(
     label="Download the monitoring data",
     data=excel_file,
-    file_name="monitoring_data.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    file_name="monitoring_Q4_2024.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    type="primary"
 )
