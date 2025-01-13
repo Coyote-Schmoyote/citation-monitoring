@@ -3,22 +3,27 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from pathlib import Path
+from io import BytesIO
+import requests
 
 @st.cache_data
-def get_data(file_paths):
+def get_data(file_urls):
     """
-    Load and preprocess data from multiple source files.
+    Load and preprocess data from multiple source files hosted on GitHub.
 
     Args:
-        file_paths (list): List of file paths to CSV files.
+        file_urls (list): List of URLs to raw GitHub files.
 
     Returns:
         pd.DataFrame: Combined and processed DataFrame.
     """
-    def load_data(files):
-        """Load data from multiple files into a single DataFrame."""
-        dfs = [pd.read_excel(file) for file in files]
+    def load_data(urls):
+        """Load data from multiple URLs into a single DataFrame."""
+        dfs = []
+        for url in urls:
+            response = requests.get(url)
+            file_data = BytesIO(response.content)
+            dfs.append(pd.read_excel(file_data))
         return pd.concat(dfs, ignore_index=True)
 
     def drop_after_consecutive_nans(df, column):
@@ -37,7 +42,7 @@ def get_data(file_paths):
         return values_to_replace
 
     # Load data from all source files
-    data = load_data(file_paths)
+    data = load_data(file_urls)
 
     # Normalize column names for consistency
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')

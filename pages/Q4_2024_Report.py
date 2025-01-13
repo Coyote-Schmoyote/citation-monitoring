@@ -7,7 +7,12 @@ st.sidebar.image("./data/b&s_logo.png")
 st.sidebar.image("./data/pil_logo.png")
 
 #load data
-data = get_data(["/workspaces/citation-monitoring/data/2024Q4_20250109.xlsx"])
+# File URLs (GitHub raw URLs)
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/blob/main/data/2024Q4_20250109.xlsx"]
+
+# Fetch data using the modified get_data function
+data = get_data(file_urls)
+
 
 st.header("The Analysis")
 st.markdown("""
