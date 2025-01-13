@@ -40,6 +40,7 @@ This monitoring report is compiled on Streamlit platform using Python programmin
 
 ### Report
 - Most of the charts and graphs in the report have interactive elements. Feel free to explore the data by clicking and hovering on different elements.
+- It is possible to collapse the navigaiton on the left side by clicking on <, and expand it again by clicking on >.
 - You can export the report as a .pdf file by clicking on ⋮ symbol in the top right corner, and selecting "Print".
 - You can adjust the visual theme of the report (light or dark) by clicking on ⋮ and going to "Settings".
 - The excel file with monitoring data is available to download at the bottom of each quarterly report.        

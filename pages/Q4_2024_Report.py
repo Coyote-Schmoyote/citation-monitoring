@@ -1,4 +1,6 @@
 import streamlit as st
+from io import BytesIO
+import pandas as pd
 from utils.data_loader import get_data
 from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart
 
@@ -55,3 +57,18 @@ st.markdown("""
 ## 1.3 Journal – journal publishing the document citing EIGE
             """)
 
+st.divider()
+
+# Save the DataFrame to an Excel file in memory
+excel_file = BytesIO()
+with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
+    data.to_excel(writer, index=False, sheet_name='Sheet1')
+excel_file.seek(0)
+
+# Create a download button
+st.download_button(
+    label="Download the monitoring data",
+    data=excel_file,
+    file_name="monitoring_data.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
