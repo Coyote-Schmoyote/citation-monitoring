@@ -1,10 +1,13 @@
 import streamlit as st
 
-def show_introduction():
-    st.header("Introduction")
-    st.markdown("""
+# Sidebar navigation using native hamburger menu
+st.sidebar.title("EIGE Citation Monitoring")
+
+
+st.header("Introduction")
+st.markdown("""
     The consultants have provided two types of deliverables:
     ...
     """)
-    st.write("This is a test content for Introduction page.")
+st.write("This is a test content for Introduction page.")
 

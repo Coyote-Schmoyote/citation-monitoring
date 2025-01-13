@@ -3,17 +3,28 @@ import plotly.graph_objects as go
 import numpy as np
 
 def output_type_bar_chart(data):
+    # Normalize column names for consistent access
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    # Use the correct column name
+    required_column = "type_of_eige's_output_cited_agg"
+    if required_column not in data.columns:
+        raise KeyError(
+            f"Column '{required_column}' not found in the dataset. "
+            f"Available columns: {list(data.columns)}"
+        )
+
     # Count occurrences of each type of EIGE output
-    topic_counts = data["Type of EIGE output_agg"].value_counts()
+    topic_counts = data[required_column].value_counts()
     colors = px.colors.qualitative.Pastel
 
-    # Create the bar chart figure
+    # Create the bar chart
     fig = go.Figure(data=[go.Bar(
         x=topic_counts.index,
         y=topic_counts.values
     )])
 
-    # Update traces with specific styling and hover template
+    # Update styling
     fig.update_traces(
         name="November 2023",
         width=0.95,
@@ -23,102 +34,72 @@ def output_type_bar_chart(data):
         ),
         hovertemplate="Nr. of citations: %{y} <br>Type of output: %{x}"
     )
-
-    # Update layout with custom settings
     fig.update_layout(
         width=800,
         title="Types of EIGE Output",
-        title_font=dict(
-            family="Verdana",
-            size=20,
-            color=colors[0]  # Title font color set to the first color of the colorscale
-        ),
+        title_font=dict(family="Verdana", size=20, color=colors[0]),
         font_size=12,
         plot_bgcolor="white",
-        xaxis=dict(
-            showgrid=False,
-        ),
-        yaxis=dict(
-            showgrid=False,
-        )
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False)
     )
     return fig
 
 def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600):
-    # Drop rows with NaN values in the required columns
-    filtered_data = data.dropna(subset=['Type of EIGE output_agg', 'Short Labels_output'])
+    # Normalize column names for consistent access
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    # Check for required columns
+    required_columns = ["type_of_eige's_output_cited_agg", "short_labels"]
+    missing_columns = [col for col in required_columns if col not in data.columns]
     
-    # Create the sunburst chart with two levels (parent/child hierarchy)
+    if missing_columns:
+        raise KeyError(
+            f"Required columns {missing_columns} not found in the dataset. "
+            f"Available columns: {list(data.columns)}"
+        )
+
+    # Drop rows with NaN values in the required columns
+    filtered_data = data.dropna(subset=required_columns)
+
+    # Create the sunburst chart
     fig = px.sunburst(
         data_frame=filtered_data,
-        path=["Type of EIGE output_agg", "Short Labels_output"],  # Parent and child levels
-        values=[1] * len(filtered_data),  # Set all values to 1 for hierarchy alignment
+        path=["type_of_eige's_output_cited_agg", "short_labels"],
+        values=[1] * len(filtered_data),
         color_discrete_sequence=color_palette
     )
 
-    # Extract IDs and parents from the chart
-    ids = fig.data[0].ids
-    parents = fig.data[0].parents
-    customdata = []
-
-    # Determine which nodes are leaves (child nodes) or non-leaves (parent nodes)
-    for id, parent in zip(ids, parents):
-        is_leaf = id not in parents  # If `id` is not a parent, it's a leaf
-        parts = id.split("/")
-
-        if is_leaf and len(parts) == 2:  # Child node
-            parent, child = parts
-            match = filtered_data.loc[
-                (filtered_data["Type of EIGE output_agg"] == parent.strip()) &
-                (filtered_data["Short Labels_output"] == child.strip())
-            ]
-            # Append full label for leaves
-            if not match.empty:
-                full_label = match["EIGE's output cited"].iloc[0]
-                customdata.append([id, full_label])
-            else:
-                customdata.append([id, "No Label Found"])
-        elif len(parts) == 1:  # Parent node
-            parent = parts[0]
-            match = filtered_data.loc[filtered_data["Type of EIGE output_agg"] == parent.strip()]
-            # Append placeholder or summary for parent nodes
-            if not match.empty:
-                customdata.append([id, f"Parent: {parent}"])
-            else:
-                customdata.append([id, ""])
-
-    # Assign the customdata to the trace
-    fig.data[0].customdata = np.array(customdata)
-
-    # Update the hovertemplate to show appropriate labels
+    # Customize hover templates
     fig.update_traces(
-        hovertemplate=(
-            "<b>%{customdata[1]}</b>"  # Display the full label for children and summary for parents
-            "<extra></extra>"
-        )
+        hovertemplate="<b>%{id}</b><br>Type: %{parent}<br>Label: %{label}<extra></extra>"
     )
+
     # Update layout with specified height
     fig.update_layout(height=height)
     return fig
 
 
 def trend_line_chart(data):
+    # Normalize column names for consistent access
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
     # Aggregate data by date and type of EIGE's output cited
-    agg_df = data.groupby(["date of publication", "type of EIGE's output cited"]).size().reset_index(name="Count")
+    agg_df = data.groupby(["date_of_publication", "type_of_eige's_output_cited"]).size().reset_index(name="Count")
 
     colors = px.colors.qualitative.Pastel
 
     # Create the line plot
     fig = px.line(
         agg_df,
-        x="date of publication",
+        x="date_of_publication",
         y="Count",
-        color="type of EIGE's output cited",
+        color="type_of_eige's_output_cited",
         title="Trends in EIGE's Output Cited Over Time",
         labels={
-            'date of publication': "Date",
-            'Count': 'Number of Citations',
-            'type of EIGE\'s output cited': 'Category'
+            "date_of_publication": "Date",
+            "Count": "Number of Citations",
+            "type_of_eige's_output_cited": "Category"
         },
         markers=True,
         color_discrete_sequence=colors
@@ -131,36 +112,28 @@ def trend_line_chart(data):
     )
 
     # Add dropdown for selecting topics to display
+    unique_topics = agg_df["type_of_eige's_output_cited"].unique()
+    dropdown_buttons = [
+        {
+            "label": "All Topics",
+            "method": "update",
+            "args": [{"visible": [True] * len(unique_topics)}, {"title": "Trends in EIGE's Output Cited Over Time"}]
+        }
+    ]
+    for topic in unique_topics:
+        dropdown_buttons.append({
+            "label": topic,
+            "method": "update",
+            "args": [
+                {"visible": [True if t == topic else False for t in unique_topics]},
+                {"title": f"Trend for {topic}"}
+            ]
+        })
+
     fig.update_layout(
         updatemenus=[
             {
-                "buttons": [
-                    {
-                        "label": "All Topics",
-                        "method": "update",
-                        "args": [{"visible": [True] * len(agg_df["type of EIGE's output cited"].unique())}, {"title": "Trends in EIGE's Output Cited Over Time"}]
-                    },
-                    {
-                        "label": "Gender Equality",
-                        "method": "update",
-                        "args": [{"visible": [True if topic == "Gender Equality" else False for topic in agg_df["type of EIGE's output cited"]]}, {"title": "Gender Equality Trend"}]
-                    },
-                    {
-                        "label": "Labour",
-                        "method": "update",
-                        "args": [{"visible": [True if topic == "Labour" else False for topic in agg_df["type of EIGE's output cited"]]}, {"title": "Labour Trend"}]
-                    },
-                    {
-                        "label": "Health",
-                        "method": "update",
-                        "args": [{"visible": [True if topic == "Health" else False for topic in agg_df["type of EIGE's output cited"]]}, {"title": "Health Trend"}]
-                    },
-                    {
-                        "label": "Education",
-                        "method": "update",
-                        "args": [{"visible": [True if topic == "Education" else False for topic in agg_df["type of EIGE's output cited"]]}, {"title": "Education Trend"}]
-                    }
-                ],
+                "buttons": dropdown_buttons,
                 "direction": "down",
                 "showactive": True,
                 "active": 0,
@@ -171,7 +144,6 @@ def trend_line_chart(data):
             }
         ],
         plot_bgcolor="whitesmoke",
-        # Adjust the position of the legend to make space for the dropdown
         legend=dict(
             x=0.99,
             y=0.89,
@@ -181,16 +153,14 @@ def trend_line_chart(data):
             bordercolor="lightgray",
             borderwidth=1
         ),
-        # Customize the size of the chart
-        width=1000,  # Adjust width
-        height=550,  # Adjust height
-        margin=dict(l=50, r=50, t=70, b=50),  # Add margin for better spacing
-        # Customize the axis labels
+        width=1000,
+        height=550,
+        margin=dict(l=50, r=50, t=70, b=50),
         xaxis=dict(
             title="Date of Publication",
             title_font=dict(size=16),
             tickfont=dict(size=12),
-            tickangle=45  # Rotate x-axis labels for better readability
+            tickangle=45
         ),
         yaxis=dict(
             title="Number of Citations",
@@ -200,4 +170,3 @@ def trend_line_chart(data):
     )
 
     return fig
-

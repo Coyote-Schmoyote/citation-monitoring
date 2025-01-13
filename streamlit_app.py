@@ -1,4 +1,5 @@
 import streamlit as st
+import toml
 from pages.Introduction import show_introduction  # Import correctly
 from pages.Methodology import show_methodology
 from pages.Q4_2024_Report import show_q4_2024
@@ -9,27 +10,12 @@ from utils.data_loader import get_data
 st.set_page_config(
     page_title="EIGE Citation Monitoring in Academia: Analytical Report",
     page_icon=":bar_chart:",
-    layout="centered",
-    initial_sidebar_state="auto",
-    menu_items = None  # Default expanded sidebar with hamburger menu
+    layout="centered"
 )
 
-# Sidebar menu with default navigation (Streamlit's hamburger menu)
+# Sidebar navigation using native hamburger menu
 st.sidebar.title("EIGE Citation Monitoring")
 
 
-# Initialize session state if not already set
-if 'page' not in st.session_state:
-    st.session_state.page = 'Introduction'  # Default page
+st.write("Hello")
 
-# Display the correct page based on the session state
-if st.session_state.page == 'Introduction':
-    show_introduction()  # Call the introduction function
-elif st.session_state.page == 'Methodology':
-    show_methodology()
-elif st.session_state.page == 'Q4 2024':
-    # Define data path
-    data_path = Path("/workspaces/citation-monitoring/data/2024Q4_20250109.xlsx")
-    # Load data
-    data = get_data([data_path])
-    show_q4_2024(data) 

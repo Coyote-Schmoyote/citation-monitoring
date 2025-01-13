@@ -1,6 +1,9 @@
 import pandas as pd
-from pathlib import Path
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
+from pathlib import Path
 
 @st.cache_data
 def get_data(file_paths):
@@ -30,41 +33,40 @@ def get_data(file_paths):
         values_to_replace = value_counts[
             (value_counts <= 1) | (value_counts.index == "Unclear")
         ].index
-        # Replace values with 'Other' and create the aggregated column
         df[f"{column}_agg"] = df[column].replace(values_to_replace, "Other")
-        return values_to_replace  # Return values_to_replace for further use if needed
+        return values_to_replace
 
     # Load data from all source files
     data = load_data(file_paths)
 
+    # Normalize column names for consistency
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
     # Apply transformations
-    if "name of the document citing EIGE" in data.columns:
-        data = drop_after_consecutive_nans(data, "name of the document citing EIGE")
+    if "name_of_the_document_citing_eige" in data.columns:
+        data = drop_after_consecutive_nans(data, "name_of_the_document_citing_eige")
 
-    if "URL of the document citing EIGE" in data.columns:
-        data.drop("URL of the document citing EIGE", axis=1, inplace=True)
+    if "url_of_the_document_citing_eige" in data.columns:
+        data.drop("url_of_the_document_citing_eige", axis=1, inplace=True)
 
-    if "type of EIGE's output cited" in data.columns:
-        # Replace values in "type of EIGE's output cited" and create "type of EIGE output_agg"
-        values_to_replace = replace_values_with_other(data, "type of EIGE's output cited")
+    if "type_of_eige's_output_cited" in data.columns:
+        replace_values_with_other(data, "type_of_eige's_output_cited")
 
-    # Check if the 'Type of EIGE output_agg' column exists after the transformation
-    if 'type of EIGE\'s output cited_agg' in data.columns:
-        print("Successfully created 'Type of EIGE output_agg' column.")
-
-    if "date of publication" in data.columns:
-        data["date of publication"] = pd.to_datetime(
-            data["date of publication"], format="%d.%m.%Y", errors="coerce"
+    if "date_of_publication" in data.columns:
+        data["date_of_publication"] = pd.to_datetime(
+            data["date_of_publication"], format="%d.%m.%Y", errors="coerce"
         )
 
-    columns_to_fill = ["type of EIGE's output cited_agg", "type of EIGE's output cited"]
+    columns_to_fill = ["type_of_eige's_output_cited_agg", "type_of_eige's_output_cited"]
     for col in columns_to_fill:
         if col in data.columns:
             data[col] = data[col].fillna("Unknown")
 
-    if "EIGE output referenced" in data.columns:
-        data["Short Labels"] = data["EIGE output referenced"].apply(
+    if "eige's_output_cited" in data.columns:
+        data["short_labels"] = data["eige's_output_cited"].apply(
             lambda x: (x[:16] + '...') if isinstance(x, str) and len(x) > 15 else x
         )
 
+    # Debugging step: Print column names to confirm presence of expected columns
+    print("Columns in data:", data.columns)
     return data
