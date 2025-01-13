@@ -2,7 +2,7 @@ import streamlit as st
 from io import BytesIO
 import pandas as pd
 from utils.data_loader import get_data
-from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart
+from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, radar_chart
 
 # Sidebar navigation using native hamburger menu
 st.sidebar.image("./data/b&s_logo.png")
@@ -10,7 +10,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250109.xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250125.xlsx"]
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
@@ -29,6 +29,11 @@ st.markdown("""
 ## 1.1 Type of output
             """)
 # Bar Chart
+st.markdown("""
+    <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
+        You can download this chart by clicking on 📷 symbol. 
+    </div>
+""", unsafe_allow_html=True)
 st.plotly_chart(output_type_bar_chart(data))
 
 st.subheader("1.2 Type of output referenced")
@@ -53,10 +58,16 @@ st.markdown("""
 ## 1.2 Type of the document that referenced EIGE
             """)
 
+
 st.markdown("""
 ## 1.3 Journal – journal publishing the document citing EIGE
             """)
 
+# Create the radar chart
+fig = radar_chart(data)
+
+# Display the radar chart in Streamlit
+st.plotly_chart(fig)
 
 #-----DOWNLOAD
 # Save the DataFrame to an Excel file in memory

@@ -3,6 +3,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.io as pio 
 import numpy as np
+import pandas as pd 
 
 colors = px.colors.qualitative.Pastel
 
@@ -210,3 +211,64 @@ def trend_line_chart(data):
     )
 
     return fig
+
+def radar_chart(data):
+    """
+    Create a radar chart from the provided dataset.
+
+    Args:
+        data (pd.DataFrame): Preprocessed DataFrame.
+
+    Returns:
+        go.Figure: The radar chart as a Plotly Figure object.
+    """
+    # Rename and preprocess columns
+    data = data.rename(columns={
+        'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'impact factor of the journal',
+        'number_of_citations_(using_google_scholar)': 'number of citations',
+        'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'location of the citation',
+        'category_of_mention:_1_positive;_0_neutral;_-1_negative': 'sentiment of mention'
+    })
+
+    # Ensure 'sentiment of mention' is numeric
+    data['sentiment of mention'] = pd.to_numeric(data['sentiment of mention'], errors='coerce')
+
+    # Adjust sentiment mapping
+    sentiment_mapping = {-1: 0, 0: 1.5, 1: 3}
+    data['sentiment of mention'] = data['sentiment of mention'].map(sentiment_mapping)
+
+    # Relevant categories
+    categories = ['impact factor of the journal', 'number of citations', 
+                  'location of the citation', 'sentiment of mention']
+
+    # Group by document titles
+    data_grouped = data.groupby('name_of_the_document_citing_eige')[categories].mean().reset_index()
+
+    # Truncate document titles for display
+    data_grouped['name_truncated'] = data_grouped['name_of_the_document_citing_eige'].apply(lambda x: x[:25])
+
+    # Create radar chart
+    fig = go.Figure()
+    for _, article in data_grouped.iterrows():
+        fig.add_trace(go.Scatterpolar(
+            r=article[categories],
+            theta=categories,
+            fill='toself',
+            name=article['name_truncated']
+        ))
+
+    # Update layout with custom scale
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[1, 3],
+                tickvals=[1, 2, 3],
+                ticktext=["Low", "Medium", "High"]
+            )
+        ),
+        title="Radar Chart: Article Comparison",
+        showlegend=True
+    )
+
+    return fig  # Return the figure object
