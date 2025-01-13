@@ -1,5 +1,5 @@
 import streamlit as st
-from pages.Introduction import show_introduction
+from pages.Manual import show_introduction
 from pages.Methodology import show_methodology
 from pages.Q4_2024_Report import show_q4_2024
 from pathlib import Path

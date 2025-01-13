@@ -70,15 +70,48 @@ def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600)
         color_discrete_sequence=color_palette
     )
 
-    # Customize hover templates
+    # Extract IDs and parents from the chart
+    ids = fig.data[0].ids
+    parents = fig.data[0].parents
+    customdata = []
+
+    # Loop over each ID and parent to determine whether it is a leaf or parent node
+    for id, parent in zip(ids, parents):
+        is_leaf = id not in parents  # If `id` is not a parent, it's a leaf
+        parts = id.split("/")
+
+        if is_leaf and len(parts) == 2:  # Child node (leaf)
+            parent, child = parts
+            match = filtered_data.loc[
+                (filtered_data["type_of_eige's_output_cited_agg"] == parent.strip()) &
+                (filtered_data["short_labels"] == child.strip())
+            ]
+            # Add full label for child nodes
+            if not match.empty:
+                full_label = match["eige's_output_cited"].iloc[0]
+                customdata.append([id, full_label, parent])  # Add parent info for hover
+            else:
+                customdata.append([id, "No Label Found", parent])
+        elif len(parts) == 1:  # Parent node
+            parent = parts[0]
+            customdata.append([id, f"Parent: {parent}", ""])
+
+    # Assign the customdata to the trace
+    fig.data[0].customdata = np.array(customdata)
+
+    # Update the hovertemplate to show the full label and parent information
     fig.update_traces(
-        hovertemplate="<b>%{id}</b><br>Type: %{parent}<br>Label: %{label}<extra></extra>"
+        hovertemplate=(
+            "<b>%{customdata[1]}</b><br>"  # Full label or parent summary
+            "Type: %{customdata[2]}<br>"   # Parent context
+            "<extra></extra>"
+        )
     )
 
     # Update layout with specified height
     fig.update_layout(height=height)
-    return fig
 
+    return fig
 
 def trend_line_chart(data):
     # Normalize column names for consistent access
