@@ -75,3 +75,37 @@ def get_data(file_urls):
     # Debugging step: Print column names to confirm presence of expected columns
     print("Columns in data:", data.columns)
     return data
+
+@st.cache_data
+def load_geospatial_data(file_url):
+    """
+    Load and preprocess geospatial data from an Excel file.
+
+    Args:
+        file_url (str): URL to the raw Excel file.
+
+    Returns:
+        pd.DataFrame: Processed DataFrame with valid latitude and longitude columns.
+    """
+
+    # Fetch the file from the URL
+    response = requests.get(file_url)
+    file_data = BytesIO(response.content)
+
+    # Load the Excel file into a DataFrame
+    data = pd.read_excel(file_data)
+
+    # Normalize column names for consistency
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    # Check for required columns
+    required_columns = {"location", "latitude", "longitude"}
+    if not required_columns.issubset(data.columns):
+        raise ValueError(f"Missing required columns. Expected columns: {required_columns}")
+
+    # Ensure valid latitude and longitude values
+    data["latitude"] = pd.to_numeric(data["latitude"], errors="coerce")
+    data["longitude"] = pd.to_numeric(data["longitude"], errors="coerce")
+    data = data.dropna(subset=["latitude", "longitude"])  # Drop rows with invalid lat/lon
+
+    return data

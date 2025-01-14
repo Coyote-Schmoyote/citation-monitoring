@@ -1,7 +1,7 @@
 import streamlit as st
 from io import BytesIO
 import pandas as pd
-from utils.data_loader import get_data
+from utils.data_loader import get_data,load_geospatial_data
 from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot
 
 # Sidebar navigation using native hamburger menu
@@ -37,7 +37,7 @@ The 15 citations identified correspond to 10 different articles, which means tha
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
-        You can download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
+        Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
 st.plotly_chart(citation_stack(data))
@@ -61,6 +61,12 @@ Regarding the reports cited, it is worth noting that (a) there are no repeated r
 Being the current monitoring (Q1) the first one of this monitoring assignment, the monitoring team has no previous data to compare with or to allow the production of trends. 
             """)
 
+st.markdown("""
+    <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
+        💡 Use the legend on the right side of the graph to remove or add the elements.
+    </div>
+""", unsafe_allow_html=True)
+
 st.plotly_chart(trend_line_chart(data))
 
 st.subheader("3.2.1 Monthly data")
@@ -81,7 +87,7 @@ Trend of the type of EIGE’s output cited, January-March 2024
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
-        💡 This graph is interactive. When you click on an element, it expands, showing the distribution of types of EIGE's outputs cited. 
+        💡 Click on an element too expand the category and  see the breakdown of EIGE's outputs cited. 
     </div>
 """, unsafe_allow_html=True)
 
@@ -94,10 +100,17 @@ Due to the nature of the academic publications monitored, it is not surprising t
             
 The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, and one in the United Kingdom). There are neither anyo repeated authors nor neither repeated universities.
             """)
+geo_data =  load_geospatial_data("/workspaces/citation-monitoring/data/map_202401.xlsx")                          
+st.map(geo_data)
 
 st.markdown("""
 The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
             """)
+st.markdown("""
+    <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
+        💡 Drag the columns to adjust the table size.
+    </div>
+""", unsafe_allow_html=True)
 
 selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
 
@@ -111,6 +124,11 @@ st.write(data[selected_columns].rename(columns={
 st.markdown("""
 For Q1 it is not possible to assess the impact factor of the journals that include citations to EIGE, as most of them have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus. There are only three journals where the impact factor is publicly available, and they show three different impact factors, being ‘average’ (1), ‘strong’ (1), and ‘very strong’ (1). 
             """)
+st.markdown("""
+    <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
+        💡 Use the legend on the right side of the graph to remove or add the elements.
+    </div>
+""", unsafe_allow_html=True)
 
 st.plotly_chart(radar_chart(data))
 
