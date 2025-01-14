@@ -213,62 +213,100 @@ def trend_line_chart(data):
     return fig
 
 def radar_chart(data):
-    """
-    Create a radar chart from the provided dataset.
+    # Print the columns to debug the issue
+    print(f"Columns in data: {data.columns}")
 
-    Args:
-        data (pd.DataFrame): Preprocessed DataFrame.
-
-    Returns:
-        go.Figure: The radar chart as a Plotly Figure object.
-    """
-    # Rename and preprocess columns
+    # Rename the columns for clarity
     data = data.rename(columns={
-        'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'impact factor of the journal',
-        'number_of_citations_(using_google_scholar)': 'number of citations',
-        'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'location of the citation',
-        'category_of_mention:_1_positive;_0_neutral;_-1_negative': 'sentiment of mention'
+        'impact factor of the journal: 1 respectable; 2 strong; 3 very strong (using free version of scopus)': 'impact factor of the journal',
+        'number of citations (using google scholar)': 'number of citations',
+        'location of the citation: 3 body of the article; 2 introduction; 1 bibliography/reference': 'location of the citation',
+        'category of mention: 1 positive; 0 neutral; -1 negative': 'sentiment of mention'
     })
 
-    # Ensure 'sentiment of mention' is numeric
+    # After renaming, check the columns again
+    print(f"Columns after renaming: {data.columns}")
+
+    # Check if the 'sentiment of mention' column exists
+    if 'sentiment of mention' not in data.columns:
+        st.error("'sentiment of mention' column not found in the data!")
+        return
+
+    # Inspect the unique values in 'sentiment of mention' column
+    print(f"Unique values in 'sentiment of mention' column: {data['sentiment of mention'].unique()}")
+
+    # Ensure 'sentiment of mention' is numeric, convert errors to NaN
     data['sentiment of mention'] = pd.to_numeric(data['sentiment of mention'], errors='coerce')
 
-    # Adjust sentiment mapping
+    # Check if the conversion was successful
+    print(f"Unique values after conversion: {data['sentiment of mention'].unique()}")
+
+    # Adjust the sentiment of mention values:
     sentiment_mapping = {-1: 0, 0: 1.5, 1: 3}
     data['sentiment of mention'] = data['sentiment of mention'].map(sentiment_mapping)
 
-    # Relevant categories
+    # Check if the mapping worked correctly
+    print(f"Unique values after mapping: {data['sentiment of mention'].unique()}")
+
+    # List of renamed categories (columns) we want to include in the radar chart
     categories = ['impact factor of the journal', 'number of citations', 
                   'location of the citation', 'sentiment of mention']
 
-    # Group by document titles
-    data_grouped = data.groupby('name_of_the_document_citing_eige')[categories].mean().reset_index()
+    # Group by document titles and calculate the average of the numerical columns
+    data_grouped = data.groupby('name of the document citing EIGE')[categories].mean().reset_index()
 
-    # Truncate document titles for display
-    data_grouped['name_truncated'] = data_grouped['name_of_the_document_citing_eige'].apply(lambda x: x[:25])
+    # Truncate the article titles to a maximum of 25 characters
+    data_grouped['name_of_the_document_citing_EIGE_truncated'] = data_grouped['name of the document citing EIGE'].apply(lambda x: x[:25])
 
-    # Create radar chart
+    # Initialize the figure
     fig = go.Figure()
-    for _, article in data_grouped.iterrows():
-        fig.add_trace(go.Scatterpolar(
+
+    # Add data for each article (now averaged)
+    for i, article in data_grouped.iterrows():
+        # Create a hover template based on the category
+        hovertemplate = f"Article: {article['name of the document citing EIGE']}<br>"
+
+        for category in categories:
+            if category == 'impact factor of the journal':
+                hovertemplate += f"Impact Factor: {article[category]}<br>"
+            elif category == 'number of citations':
+                hovertemplate += f"Number of Citations: {article[category]}<br>"
+            elif category == 'location of the citation':
+                hovertemplate += f"Location of Citation: {article[category]}<br>"
+            elif category == 'sentiment of mention':
+                hovertemplate += f"Sentiment of Mention: {article[category]}<br>"
+
+        hovertemplate += "<extra></extra>"
+
+        # Create the radar chart trace for the article
+        trace = go.Scatterpolar(
             r=article[categories],
             theta=categories,
             fill='toself',
-            name=article['name_truncated']
-        ))
+            name=article['name_of_the_document_citing_EIGE_truncated'],  # Truncated title in legend
+            hovertemplate=hovertemplate  # Use the constructed hovertemplate
+        )
+        
+        fig.add_trace(trace)
 
-    # Update layout with custom scale
+    # Update layout to ensure the chart appears properly
     fig.update_layout(
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[1, 3],
-                tickvals=[1, 2, 3],
-                ticktext=["Low", "Medium", "High"]
-            )
+                range=[0, 3],  # Adjusting range to show 0, 1, 2, 3
+                tickvals=[0, 1, 2, 3],  # Set tick positions at 0, 1, 2, 3
+                ticktext=["None", "Low", "Medium", "High"]  # Custom labels for the ticks
+            ),
         ),
-        title="Radar Chart: Article Comparison",
-        showlegend=True
+        title="Radar Chart: Article Comparison by Categories",
+        showlegend=True,
+        hovermode="closest"
     )
 
-    return fig  # Return the figure object
+    # Show the chart in Streamlit
+    st.plotly_chart(fig)
+
+# Example usage:
+# Assuming 'data' is your dataset
+# create_radar_chart(data)  # Uncomment and provide 'data' when running in Streamlit

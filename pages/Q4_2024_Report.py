@@ -64,10 +64,10 @@ st.markdown("""
             """)
 
 # Create the radar chart
-fig = radar_chart(data)
+radar = radar_chart(data)
 
 # Display the radar chart in Streamlit
-st.plotly_chart(fig)
+st.plotly_chart(radar)
 
 #-----DOWNLOAD
 # Save the DataFrame to an Excel file in memory
