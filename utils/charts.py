@@ -1,7 +1,6 @@
 import plotly.express as px
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.io as pio 
 import numpy as np
 import pandas as pd 
 
@@ -11,43 +10,82 @@ def output_type_bar_chart(data):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
+    # Drop rows where 'date_of_publication' is NaT or NaN
+    data = data.dropna(subset=['date_of_publication'])
+
+    # Extract month and year from the date_of_publication column
+    data['month_year'] = data['date_of_publication'].dt.strftime('%B %Y')
+
+    # Create a dropdown menu for selecting the month, adding an "All" option
+    month_options = ['All'] + data['month_year'].unique().tolist()  # Add "All" as the first option
+    selected_month = st.selectbox("Select a month", month_options)
+
+    # Filter data based on the selected month
+    if selected_month == 'All':
+        filtered_data = data  # No filtering, show all data
+    else:
+        filtered_data = data[data['month_year'] == selected_month]  # Filter by the selected month
+
     # Use the correct column name
     required_column = "type_of_eige's_output_cited_agg"
-    if required_column not in data.columns:
+    if required_column not in filtered_data.columns:
         raise KeyError(
             f"Column '{required_column}' not found in the dataset. "
-            f"Available columns: {list(data.columns)}"
+            f"Available columns: {list(filtered_data.columns)}"
         )
 
     # Count occurrences of each type of EIGE output
-    topic_counts = data[required_column].value_counts()
+    topic_counts = filtered_data[required_column].value_counts()
+
+    # Create a fixed color map based on the type of output (using the provided 'colors' palette)
+    unique_outputs = topic_counts.index.tolist()
+    
+    # Ensure there are enough colors in the palette
+    if len(unique_outputs) > len(colors):
+        raise ValueError(f"Not enough colors in the palette. Found {len(unique_outputs)} unique outputs but only {len(colors)} colors.")
+
+    # Create a color map for the unique output types
+    output_color_map = {output: colors[i] for i, output in enumerate(unique_outputs)}
 
     # Create the bar chart
-    fig = go.Figure(data=[go.Bar(
-        x=topic_counts.index,
-        y=topic_counts.values
-    )])
+    fig = go.Figure()
 
-    # Update styling
-    fig.update_traces(
-        name="November 2023",
-        width=0.95,
-        marker=dict(
-            color=topic_counts.values,
-            colorscale=colors
-        ),
-        hovertemplate="Nr. of citations: %{y} <br>Type of output: %{x}"
-    )
+    # Add the bars for each type of EIGE output
+    for output in unique_outputs:
+        output_data = filtered_data[filtered_data[required_column] == output]
+        
+        fig.add_trace(go.Bar(
+            x=[output] * len(output_data),  # All values of a given output type will have the same x
+            y=[1] * len(output_data),  # Each citation counts as 1 in the stack
+            name=output,
+            marker=dict(color=output_color_map.get(output, 'gray')),  # Use 'gray' if output is not in the map
+            hovertemplate=(
+                "<b>Type of EIGE's Output:</b> %{customdata[0]}<br>" +
+                "<b>EIGE's Output Cited:</b> %{customdata[1]}<br>" +
+                "%{text}"
+            ),
+            customdata=output_data[['type_of_eige\'s_output_cited', 'eige\'s_output_cited']].values,
+            showlegend=False
+        ))
+
+    # Update layout to show stacked bar chart and set y-axis ticks to integers
     fig.update_layout(
-        width=800,
-        title="Count of EIGE Outputs by type",
-        title_font=dict(family="Verdana", size=20, color=colors[0]),
+        barmode='stack',
+        title=f"Count of EIGE Outputs by Type ({selected_month})",
+        title_font=dict(family="Verdana", size=20, color='#636EFA'),
         font_size=12,
-        plot_bgcolor="white",
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False)
+        yaxis=dict(
+            showgrid=False,
+            tickmode='linear',
+            tick0=1,
+            dtick=1  # Ensure y-axis ticks are in intervals of 1
+        ),
+        template="plotly_white",
+        showlegend=False
     )
     return fig
+
 
 def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600):
     # Normalize column names for consistent access
@@ -184,13 +222,11 @@ def trend_line_chart(data):
                 "yanchor": "top"
             }
         ],
-        plot_bgcolor="whitesmoke",
         legend=dict(
             x=0.99,
             y=0.89,
             traceorder="normal",
             font=dict(size=12),
-            bgcolor="rgba(255, 255, 255, 0.8)",
             bordercolor="lightgray",
             borderwidth=1
         ),
@@ -205,7 +241,8 @@ def trend_line_chart(data):
         ),
         yaxis=dict(
             title="Number of Citations",
-            title_font=dict(size=16),
+            title_font=dict(family="Verdana", size=20, color=colors[0]),
+            font_size=12,,
             tickfont=dict(size=12)
         )
     )
@@ -278,11 +315,11 @@ def radar_chart(data):
             )
         ),
         title="Radar Chart: Article Comparison by Categories",
+        title_font=dict(family="Verdana", size=20, color=colors[0]),
+        font_size=12,
         showlegend=True
     )
     return fig
-
-
 
 def citation_stack(data):
     """
@@ -295,19 +332,15 @@ def citation_stack(data):
     Returns:
     plotly.graph_objects.Figure: The stacked bar chart figure.
     """
-
+    
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
     # Ensure we have one row per citation
     data['citation_id'] = data.groupby('name_of_the_document_citing_eige').cumcount()
 
-    # Count the number of times each document is cited
-    citation_repetition_count = data['name_of_the_document_citing_eige'].value_counts().reset_index()
-    citation_repetition_count.columns = ['name_of_the_document_citing_eige', 'citation_repetition_count']
-
-    # Merge the repetition count back with the main data
-    data = data.merge(citation_repetition_count, on='name_of_the_document_citing_eige', how='left')
+    # Use the 'number_of_citations_(using_google_scholar)' for the stacking
+    data['citation_count'] = data['number_of_citations_(using_google_scholar)']
 
     # Create a stacked bar chart with one stack per citation
     fig = go.Figure()
@@ -324,15 +357,15 @@ def citation_stack(data):
 
         # Only proceed if there is at least one citation for this document
         if not document_data.empty:
-            # Create the hover text with citation repetition count
-            hover_text = f"Document: {document_str}<br>Citation Count: {document_data['citation_repetition_count'].iloc[0]}"
+            # Create the hover text with citation count
+            hover_text = f"Document: {document_str}<br>Citation Count: {document_data['citation_count'].iloc[0]}"
 
             fig.add_trace(go.Bar(
                 x=[truncated_document_name] * len(document_data),
-                y=[1] * len(document_data),  # Each citation gets a stack of 1
+                y=document_data['citation_count'],  # Use the actual number of citations for stacking
                 name=document_str,
                 hoverinfo='text',  # Show the custom hover text
-                text=None,  # Full document name and citation repetition count for hover
+                text=None,  # Full document name and citation count for hover
                 marker=dict(color=px.colors.qualitative.Pastel[len(fig.data) % len(px.colors.qualitative.Pastel)]),  # Color each trace uniquely
                 showlegend=False
             ))
@@ -341,6 +374,8 @@ def citation_stack(data):
     fig.update_layout(
         barmode='stack',
         title="Citations per Document (Stacked by Citation)",
+        title_font=dict(family="Verdana", size=20, color=colors[0]),
+        font_size=12,
         xaxis_title="Document Name",
         yaxis_title="Number of Citations",
         xaxis_tickangle=-45,
@@ -352,6 +387,62 @@ def citation_stack(data):
         template="plotly_white",
         showlegend=False
     )
+
+    return fig
+
+def scatterplot(data):    
+    # Ensure the necessary columns are present
+    required_columns = [
+        'date_of_publication', 'ranking/weight', 
+        'name_of_the_document_citing_eige', 
+        'name_of_the_author/organisation_citing_eige', 
+        'name_of_the_institution_citing_eige', 
+        'name_of_the_journal_citing_eige'
+    ]
+    
+    for col in required_columns:
+        if col not in data.columns:
+            raise KeyError(f"The '{col}' column is missing from the dataset.")
+
+    # Step 1: Convert 'date_of_publication' to datetime if it's not already
+    data['date_of_publication'] = pd.to_datetime(data['date_of_publication'], errors='coerce')
+
+    # Step 2: Handle missing or invalid data in the 'ranking/weight' column
+    data['ranking/weight'] = pd.to_numeric(data['ranking/weight'], errors='coerce')
+
+    # Step 3: Filter out rows with missing values in critical columns
+    data = data.dropna(subset=['date_of_publication', 'ranking/weight'])
+
+    # Step 4: Create scatter plot with hover data
+    fig = px.scatter(data, 
+                     x='date_of_publication', 
+                     y='ranking/weight', 
+                     hover_data={
+                         'name_of_the_document_citing_eige': True,
+                         'name_of_the_author/organisation_citing_eige': True,
+                         'name_of_the_institution_citing_eige': True,
+                         'name_of_the_journal_citing_eige': True,
+                         'eige\'s_output_cited': False,
+                         'type_of_eige\'s_output_cited': False,
+                         'year_of_publication_of_eige\'s_output_cited': False,
+                         'topic': False,
+                         'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': False,
+                         'number_of_citations_(using_google_scholar)': False,
+                         'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': False,
+                         'category_of_mention:_1_positive;_0_neutral;_-1_negative': False,
+                         'number_of_mentions_in_social_media_using_altmetric': False,
+                         'ranking/weight': False,
+                         'source': False,
+                         'type_of_eige\'s_output_cited_agg': False,
+                         'short_labels': False
+                     },
+                     title="Citations Scatter Plot by Date and Rating",
+                     title_font=dict(family="Verdana", size=20, color=colors[0]),
+                     font_size=12,
+                     labels={'date_of_publication': 'Date of Publication', 'ranking/weight': 'Overall Rating'})
+
+    # Step 5: Show the plot
+    fig.show()
 
     return fig
 
