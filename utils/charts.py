@@ -411,7 +411,7 @@ def scatterplot(data):
     data = data.dropna(subset=['date_of_publication', 'ranking/weight'])
 
     # Step 4: Create scatter plot with hover data
-    fig = px.scatter(data, 
+    fig = px.scatter(data,
                      x='date_of_publication', 
                      y='ranking/weight', 
                      hover_data={
