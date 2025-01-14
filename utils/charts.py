@@ -242,13 +242,12 @@ def trend_line_chart(data):
         yaxis=dict(
             title="Number of Citations",
             title_font=dict(family="Verdana", size=20, color=colors[0]),
-            font_size=12,,
+            font_size=12,
             tickfont=dict(size=12)
         )
     )
 
     return fig
-
 
 def radar_chart(data):
     # Rename columns for clarity
