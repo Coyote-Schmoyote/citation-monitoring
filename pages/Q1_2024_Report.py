@@ -94,15 +94,19 @@ Due to the nature of the academic publications monitored, it is not surprising t
             
 The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, and one in the United Kingdom). There are neither anyo repeated authors nor neither repeated universities.
             """)
-st.plotly_chart(scatterplot(data))
 
 st.markdown("""
 The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
             """)
-st.write(data)
-    
+
 selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
-st.write(data[selected_columns])
+
+st.write(data[selected_columns].rename(columns={
+    'name_of_the_document_citing_eige': 'Document Citing EIGE',
+    'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
+    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+}))
+
 
 st.markdown("""
 For Q1 it is not possible to assess the impact factor of the journals that include citations to EIGE, as most of them have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus. There are only three journals where the impact factor is publicly available, and they show three different impact factors, being ‘average’ (1), ‘strong’ (1), and ‘very strong’ (1). 

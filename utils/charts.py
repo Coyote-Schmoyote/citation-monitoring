@@ -163,20 +163,27 @@ def trend_line_chart(data):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
-    # Aggregate data by date and type of EIGE's output cited
-    agg_df = data.groupby(["date_of_publication", "type_of_eige's_output_cited"]).size().reset_index(name="Count")
+    # Convert "date_of_publication" to datetime format for easier manipulation
+    data['date_of_publication'] = pd.to_datetime(data['date_of_publication'])
+
+    # Filter data to include only January, February, and March
+    data = data[data['date_of_publication'].dt.month.isin([1, 2, 3])]
+
+    # Aggregate data by month and type of EIGE's output cited
+    data['month'] = data['date_of_publication'].dt.to_period('M').dt.to_timestamp()
+    agg_df = data.groupby(["month", "type_of_eige's_output_cited"]).size().reset_index(name="Count")
 
     colors = px.colors.qualitative.Pastel
 
     # Create the line plot
     fig = px.line(
         agg_df,
-        x="date_of_publication",
+        x="month",
         y="Count",
         color="type_of_eige's_output_cited",
-        title="Trends in EIGE's Output Cited Over Time",
+        title="Trends in EIGE's Output Cited (Jan, Feb, Mar)",
         labels={
-            "date_of_publication": "Date",
+            "month": "Month",
             "Count": "Number of Citations",
             "type_of_eige's_output_cited": "Category"
         },
@@ -190,38 +197,20 @@ def trend_line_chart(data):
         marker=dict(size=10)
     )
 
-    # Add dropdown for selecting topics to display
-    unique_topics = agg_df["type_of_eige's_output_cited"].unique()
-    dropdown_buttons = [
-        {
-            "label": "All Topics",
-            "method": "update",
-            "args": [{"visible": [True] * len(unique_topics)}, {"title": "Trends in EIGE's Output Cited Over Time"}]
-        }
-    ]
-    for topic in unique_topics:
-        dropdown_buttons.append({
-            "label": topic,
-            "method": "update",
-            "args": [
-                {"visible": [True if t == topic else False for t in unique_topics]},
-                {"title": f"Trend for {topic}"}
-            ]
-        })
-
+    # Adjust x-axis ticks to show only unique months
+    unique_months = agg_df['month'].dt.strftime('%B').unique()
     fig.update_layout(
-        updatemenus=[
-            {
-                "buttons": dropdown_buttons,
-                "direction": "down",
-                "showactive": True,
-                "active": 0,
-                "x": 0.99,
-                "xanchor": "left",
-                "y": 0.5,
-                "yanchor": "top"
-            }
-        ],
+        xaxis=dict(
+            title="Month of Publication",
+            title_font=dict(size=16),
+            tickfont=dict(size=12),
+            tickvals=agg_df['month'].drop_duplicates().sort_values(),
+            ticktext=unique_months
+        ),
+        yaxis=dict(
+            title="Number of Citations",
+            tickfont=dict(size=12)
+        ),
         legend=dict(
             x=0.99,
             y=0.89,
@@ -232,17 +221,7 @@ def trend_line_chart(data):
         ),
         width=1000,
         height=550,
-        margin=dict(l=50, r=50, t=70, b=50),
-        xaxis=dict(
-            title="Date of Publication",
-            title_font=dict(size=16),
-            tickfont=dict(size=12),
-            tickangle=45
-        ),
-        yaxis=dict(
-            title="Number of Citations",
-            tickfont=dict(size=12)
-        )
+        margin=dict(l=50, r=50, t=70, b=50)
     )
 
     return fig
@@ -414,25 +393,6 @@ def scatterplot(data):
     fig = px.scatter(data,
                      x='date_of_publication', 
                      y='ranking/weight', 
-                     hover_data={
-                         'name_of_the_document_citing_eige': True,
-                         'name_of_the_author/organisation_citing_eige': True,
-                         'name_of_the_institution_citing_eige': True,
-                         'name_of_the_journal_citing_eige': True,
-                         'eige\'s_output_cited': False,
-                         'type_of_eige\'s_output_cited': False,
-                         'year_of_publication_of_eige\'s_output_cited': False,
-                         'topic': False,
-                         'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': False,
-                         'number_of_citations_(using_google_scholar)': False,
-                         'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': False,
-                         'category_of_mention:_1_positive;_0_neutral;_-1_negative': False,
-                         'number_of_mentions_in_social_media_using_altmetric': False,
-                         'ranking/weight': False,
-                         'source': False,
-                         'type_of_eige\'s_output_cited_agg': False,
-                         'short_labels': False
-                     },
                      title="Citations Scatter Plot by Date and Rating",
                      labels={'date_of_publication': 'Date of Publication', 'ranking/weight': 'Overall Rating'})
 
