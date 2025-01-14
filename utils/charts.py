@@ -175,8 +175,6 @@ def trend_line_chart(data):
         y="Count",
         color="type_of_eige's_output_cited",
         title="Trends in EIGE's Output Cited Over Time",
-        title_font=dict(family="Verdana", size=20, color=colors[0]),
-        font_size=12,
         labels={
             "date_of_publication": "Date",
             "Count": "Number of Citations",
