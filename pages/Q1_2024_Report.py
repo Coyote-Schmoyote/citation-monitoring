@@ -100,7 +100,7 @@ Due to the nature of the academic publications monitored, it is not surprising t
             
 The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, and one in the United Kingdom). There are neither anyo repeated authors nor neither repeated universities.
             """)
-geo_data =  load_geospatial_data("/workspaces/citation-monitoring/data/map_202401.xlsx")                          
+geo_data =  load_geospatial_data("https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/map_202401.xlsx")                          
 st.map(geo_data)
 
 st.markdown("""
