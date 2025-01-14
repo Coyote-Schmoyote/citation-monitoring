@@ -11,6 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 #load data
 # File URLs (GitHub raw URLs)
 file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/Q12024_13012025.xlsx"]
+geo_url =  "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/map_2024Q1.xlsx"                        
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
@@ -100,8 +101,9 @@ Due to the nature of the academic publications monitored, it is not surprising t
             
 The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, and one in the United Kingdom). There are neither anyo repeated authors nor neither repeated universities.
             """)
-geo_data =  load_geospatial_data("https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/map_202401.xlsx")                          
-st.map(geo_data)
+
+st.map(load_geospatial_data(geo_url))
+#st.write(geo_data)
 
 st.markdown("""
 The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
