@@ -37,7 +37,7 @@ The 15 citations identified correspond to 10 different articles, which means tha
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
-        You can download this chart by clicking on 📷 symbol. 
+        You can download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
 st.plotly_chart(citation_stack(data))
@@ -66,7 +66,7 @@ st.plotly_chart(trend_line_chart(data))
 st.subheader("3.2.1 Monthly data")
 
 st.markdown("""
-The following figures present the type of institutions or organisations that have mentioned EIGE in the period January-March 2024. Please note that the table refers to the number of documents published, which is usually different from the number of references.
+The following figures present the types of EIGE outputs mentioned in the period January-March 2024. 
             """)
 
 st.plotly_chart(output_type_bar_chart(data))
@@ -81,7 +81,7 @@ Trend of the type of EIGE’s output cited, January-March 2024
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
-        💡 This graph is interactive. When you click on an element, it expands. 
+        💡 This graph is interactive. When you click on an element, it expands, showing the distribution of types of EIGE's outputs cited. 
     </div>
 """, unsafe_allow_html=True)
 

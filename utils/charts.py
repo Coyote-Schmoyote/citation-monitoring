@@ -434,8 +434,6 @@ def scatterplot(data):
                          'short_labels': False
                      },
                      title="Citations Scatter Plot by Date and Rating",
-                     title_font=dict(family="Verdana", size=20, color=colors[0]),
-                     font_size=12,
                      labels={'date_of_publication': 'Date of Publication', 'ranking/weight': 'Overall Rating'})
 
     # Step 5: Show the plot
