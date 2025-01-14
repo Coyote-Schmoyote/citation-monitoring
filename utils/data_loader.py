@@ -88,9 +88,30 @@ def load_geospatial_data(file_url):
     """
 
     # Fetch the file from the URL
+    print("Fetching data from:", file_url)  # For debugging
     response = requests.get(file_url)
-    file_data = BytesIO(response.content)
 
-    # Load the Excel file into a DataFrame
-    data = pd.read_excel(file_data)
-    return data
+    # Check if the request was successful (status code 200)
+    if response.status_code != 200:
+        print(f"Error fetching data from {file_url}. Status code: {response.status_code}")
+        return None
+
+    try:
+        # Load the Excel file into a DataFrame using the openpyxl engine for .xlsx files
+        file_data = BytesIO(response.content)
+        data = pd.read_excel(file_data, engine='openpyxl')  # Specify engine
+
+        # Rename columns to 'latitude' and 'longitude'
+        if 'latitude' not in data.columns or 'longitude' not in data.columns:
+            # Assuming columns have different names, replace with your actual column names
+            data.rename(columns={'latitude_column_name': 'latitude', 'longitude_column_name': 'longitude'}, inplace=True)
+        
+        # Ensure that the 'latitude' and 'longitude' columns are valid
+        data = data.dropna(subset=['latitude', 'longitude'])
+
+        print("Data loaded and processed successfully.")
+        return data
+
+    except Exception as e:
+        print(f"Error processing the Excel file: {e}")
+        return None
