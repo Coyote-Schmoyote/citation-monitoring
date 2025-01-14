@@ -216,14 +216,11 @@ def trend_line_chart(data):
 def radar_chart(data):
     # Rename columns for clarity
     data = data.rename(columns={
-        'impact factor of the journal: 1 respectable; 2 strong; 3 very strong (using free version of scopus)': 'impact factor of the journal',
-        'number of citations (using google scholar)': 'number of citations',
-        'location of the citation: 3 body of the article; 2 introduction; 1 bibliography/reference': 'location of the citation',
-        'category of mention: 1 positive; 0 neutral; -1 negative': 'sentiment of mention'
+        'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'impact factor of the journal',
+        'number_of_citations_(using_google_scholar)': 'number of citations',
+        'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'location of the citation',
+        'category_of_mention:_1_positive;_0_neutral;_-1_negative': 'sentiment of mention'
     })
-
-    # Save the original values in new columns
-    data['original_sentiment_of_mention'] = data['sentiment of mention']
 
     # Ensure numeric conversion and clean data
     columns_to_convert = ['impact factor of the journal', 'number of citations', 'location of the citation', 'sentiment of mention']
@@ -243,20 +240,20 @@ def radar_chart(data):
                   'location of the citation', 'sentiment of mention']
 
     # Group by document titles and calculate averages
-    data_grouped = data.groupby('name of the document citing EIGE')[categories].mean().reset_index()
+    data_grouped = data.groupby('name_of_the_document_citing_eige')[categories].mean().reset_index()
 
     # Truncate long titles
-    data_grouped['name_of_the_document_citing_EIGE_truncated'] = data_grouped['name of the document citing EIGE'].apply(lambda x: x[:45])
+    data_grouped['name_of_the_document_citing_EIGE_truncated'] = data_grouped['name_of_the_document_citing_eige'].apply(lambda x: x[:45])
 
     # Create radar chart
     fig = go.Figure()
     for _, article in data_grouped.iterrows():
         # Create a hover template showing original (non-normalized) values
-        hovertemplate = f"Article: {article['name of the document citing EIGE']}<br>"
+        hovertemplate = f"Article: {article['name_of_the_document_citing_eige']}<br>"
 
         # Add the original values to the hovertemplate
-        hovertemplate += f"Original Sentiment of Mention: {article['sentiment of mention']}<br>"
-        hovertemplate += f"Original Impact Factor: {article['impact factor of the journal']}<br>"
+        hovertemplate += f"Original Sentiment of Mention: {article['sentiment of mention'] / 3:.2f}<br>"  # Display normalized sentiment
+        hovertemplate += f"Original Impact Factor of the Journal: {article['impact factor of the journal']}<br>"
         hovertemplate += f"Original Number of Citations: {article['number of citations']}<br>"
         hovertemplate += f"Original Location of Citation: {article['location of the citation']}<br>"
 
@@ -272,7 +269,7 @@ def radar_chart(data):
         ))
 
     fig.update_layout(
-            polar=dict(
+        polar=dict(
             radialaxis=dict(
                 visible=True,
                 range=[1, 3],  # Set range to match "Low", "Medium", "High"
@@ -284,5 +281,79 @@ def radar_chart(data):
         showlegend=True
     )
     return fig
+
+
+
+def citation_stack(data):
+    """
+    Generates a stacked bar chart where each bar represents a document citing EIGE.
+    Each stack represents a citation, and hover text shows the number of citations per document.
+
+    Parameters:
+    data (pandas.DataFrame): DataFrame containing citation information with relevant columns.
+
+    Returns:
+    plotly.graph_objects.Figure: The stacked bar chart figure.
+    """
+
+    # Normalize column names for consistent access
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    # Ensure we have one row per citation
+    data['citation_id'] = data.groupby('name_of_the_document_citing_eige').cumcount()
+
+    # Count the number of times each document is cited
+    citation_repetition_count = data['name_of_the_document_citing_eige'].value_counts().reset_index()
+    citation_repetition_count.columns = ['name_of_the_document_citing_eige', 'citation_repetition_count']
+
+    # Merge the repetition count back with the main data
+    data = data.merge(citation_repetition_count, on='name_of_the_document_citing_eige', how='left')
+
+    # Create a stacked bar chart with one stack per citation
+    fig = go.Figure()
+
+    # Loop over each unique document and add a trace for the citations
+    documents = data['name_of_the_document_citing_eige'].unique()
+
+    for document in documents:
+        document_data = data[data['name_of_the_document_citing_eige'] == document]
+
+        # Ensure document is a string and truncate the x-label to 15 characters
+        document_str = str(document)
+        truncated_document_name = document_str[:15] + "..." if len(document_str) > 15 else document_str
+
+        # Only proceed if there is at least one citation for this document
+        if not document_data.empty:
+            # Create the hover text with citation repetition count
+            hover_text = f"Document: {document_str}<br>Citation Count: {document_data['citation_repetition_count'].iloc[0]}"
+
+            fig.add_trace(go.Bar(
+                x=[truncated_document_name] * len(document_data),
+                y=[1] * len(document_data),  # Each citation gets a stack of 1
+                name=document_str,
+                hoverinfo='text',  # Show the custom hover text
+                text=None,  # Full document name and citation repetition count for hover
+                marker=dict(color=px.colors.qualitative.Pastel[len(fig.data) % len(px.colors.qualitative.Pastel)]),  # Color each trace uniquely
+                showlegend=False
+            ))
+
+    # Update layout to show stacked bar chart and set y-axis ticks to integers
+    fig.update_layout(
+        barmode='stack',
+        title="Citations per Document (Stacked by Citation)",
+        xaxis_title="Document Name",
+        yaxis_title="Number of Citations",
+        xaxis_tickangle=-45,
+        yaxis=dict(
+            tickmode='linear',
+            tick0=1,
+            dtick=1,  # Ensure the y-axis ticks are in intervals of 1
+        ),
+        template="plotly_white",
+        showlegend=False
+    )
+
+    return fig
+
 
 

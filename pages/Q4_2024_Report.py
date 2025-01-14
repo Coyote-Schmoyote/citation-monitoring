@@ -2,7 +2,7 @@ import streamlit as st
 from io import BytesIO
 import pandas as pd
 from utils.data_loader import get_data
-from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, radar_chart
+from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart
 
 # Sidebar navigation using native hamburger menu
 st.sidebar.image("./data/b&s_logo.png")
@@ -15,6 +15,7 @@ file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/h
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
 
+st.write(data.columns)
 
 st.header("The Analysis")
 st.markdown("""
@@ -57,6 +58,8 @@ st.plotly_chart(trend_line_chart(data))
 st.markdown("""
 ## 1.2 Type of the document that referenced EIGE
             """)
+
+st.plotly_chart(citation_stack(data))
 
 
 st.markdown("""
