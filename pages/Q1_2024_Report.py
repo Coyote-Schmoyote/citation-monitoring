@@ -1,5 +1,6 @@
 import streamlit as st
 from io import BytesIO
+from docx import Document
 import pandas as pd
 from utils.data_loader import get_data,load_geospatial_data
 from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot
@@ -149,17 +150,38 @@ While the impact metrics described above provide us with a micro view on the aca
 
 
 #-----DOWNLOAD
-# Save the DataFrame to an Excel file in memory
-excel_file = BytesIO()
-with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-    data.to_excel(writer, index=False, sheet_name='Sheet1')
-excel_file.seek(0)
+# Save the reoport
+# Path to your existing .docx file
+doc_file_path = "data/2025-01-15 2024 report.docx"
+# Open the file in binary mode
+with open(doc_file_path, "rb") as file:
+    file_data = file.read()
 
-# Create a download button
-st.download_button(
-    label="Download the monitoring data",
-    data=excel_file,
-    file_name="Q12024_13012025.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    type="primary"
-)
+# Path to your existing Excel file
+excel_file_path = "data/Q12024_13012025.xlsx"
+# Open the Excel file in binary mode
+with open(excel_file_path, "rb") as file:
+    excel_data = file.read()
+
+
+#two cols
+col1, col2 = st.columns(2)
+
+with col1:
+        # Create a report download button
+    st.download_button(
+        label="Download the Q1 2024 report",
+        data=file_data,
+        file_name="Q12024_report.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        type="primary"
+    )
+with col2:
+    # Create data download button
+    st.download_button(
+        label="Download the monitoring data",
+        data=excel_data,
+        file_name="Q12024_13012025.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type="primary"
+    )
