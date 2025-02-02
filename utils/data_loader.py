@@ -76,42 +76,52 @@ def get_data(file_urls):
     print("Columns in data:", data.columns)
     return data
 
-def load_geospatial_data(file_url):
+def load_geospatial_data(file_urls):
     """
     Load and preprocess geospatial data from an Excel file.
 
     Args:
-        file_url (str): URL to the raw Excel file.
+        file_urls (list): List of URLs to raw Excel files.
 
     Returns:
         pd.DataFrame: Processed DataFrame with valid latitude and longitude columns.
     """
+    print("Fetching data from:", file_urls)  # For debugging
+    dfs = []
+    
+    for url in file_urls:  # Iterate over the list of URLs
+        response = requests.get(url)
 
-    # Fetch the file from the URL
-    print("Fetching data from:", file_url)  # For debugging
-    response = requests.get(file_url)
+        # Check if the request was successful (status code 200)
+        if response.status_code != 200:
+            print(f"Error fetching data from {url}. Status code: {response.status_code}")
+            continue  # Skip to the next URL if there's an error
 
-    # Check if the request was successful (status code 200)
-    if response.status_code != 200:
-        print(f"Error fetching data from {file_url}. Status code: {response.status_code}")
-        return None
+        try:
+            # Load the Excel file into a DataFrame using the openpyxl engine for .xlsx files
+            file_data = BytesIO(response.content)
+            data = pd.read_excel(file_data)
 
-    try:
-        # Load the Excel file into a DataFrame using the openpyxl engine for .xlsx files
-        file_data = BytesIO(response.content)
-        data = pd.read_excel(file_data, engine='openpyxl')  # Specify engine
+            # Rename columns to 'latitude' and 'longitude'
+            if 'latitude' not in data.columns or 'longitude' not in data.columns:
+                # Assuming columns have different names, replace with your actual column names
+                data.rename(columns={'latitude_column_name': 'latitude', 'longitude_column_name': 'longitude'}, inplace=True)
+            
+            # Ensure that the 'latitude' and 'longitude' columns are valid
+            data = data.dropna(subset=['latitude', 'longitude'])
+            
+            # Append this data to the list of dataframes
+            dfs.append(data)
 
-        # Rename columns to 'latitude' and 'longitude'
-        if 'latitude' not in data.columns or 'longitude' not in data.columns:
-            # Assuming columns have different names, replace with your actual column names
-            data.rename(columns={'latitude_column_name': 'latitude', 'longitude_column_name': 'longitude'}, inplace=True)
-        
-        # Ensure that the 'latitude' and 'longitude' columns are valid
-        data = data.dropna(subset=['latitude', 'longitude'])
+        except Exception as e:
+            print(f"Error processing the Excel file from {url}: {e}")
+            continue  # Skip this file and move to the next one
 
+    # Concatenate all DataFrames into a single DataFrame
+    if dfs:
+        combined_data = pd.concat(dfs, ignore_index=True)
         print("Data loaded and processed successfully.")
-        return data
-
-    except Exception as e:
-        print(f"Error processing the Excel file: {e}")
+        return combined_data
+    else:
+        print("No data loaded. Returning None.")
         return None

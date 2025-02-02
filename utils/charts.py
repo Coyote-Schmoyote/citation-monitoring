@@ -159,15 +159,30 @@ def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600)
 
     return fig
 
-def trend_line_chart(data):
+def trend_line_chart(data, *args):
+    """
+    Generates a trend line chart based on the given months.
+
+    Args:
+        data (pd.DataFrame): The dataset containing citation data.
+        *args (int): List of months (e.g., 1 for January, 2 for February, ..., 12 for December).
+
+    Returns:
+        plotly.graph_objects.Figure: The trend line chart figure.
+    """
+    # Ensure no more than 12 months are passed
+    if len(args) > 12:
+        print("Warning: Only the first 12 months will be used.")
+        args = args[:12]
+
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
     # Convert "date_of_publication" to datetime format for easier manipulation
     data['date_of_publication'] = pd.to_datetime(data['date_of_publication'])
 
-    # Filter data to include only January, February, and March
-    data = data[data['date_of_publication'].dt.month.isin([1, 2, 3])]
+    # Filter data to include only the months passed as arguments (dynamic number of months)
+    data = data[data['date_of_publication'].dt.month.isin(args)]
 
     # Aggregate data by month and type of EIGE's output cited
     data['month'] = data['date_of_publication'].dt.to_period('M').dt.to_timestamp()
@@ -181,7 +196,7 @@ def trend_line_chart(data):
         x="month",
         y="Count",
         color="type_of_eige's_output_cited",
-        title="Trends in EIGE's Output Cited (Jan, Feb, Mar)",
+        title="Trends in EIGE's Output Cited (Custom Months)",
         labels={
             "month": "Month",
             "Count": "Number of Citations",
@@ -209,7 +224,9 @@ def trend_line_chart(data):
         ),
         yaxis=dict(
             title="Number of Citations",
-            tickfont=dict(size=12)
+            tickfont=dict(size=12),
+            tickmode="linear", 
+            dtick=1
         ),
         legend=dict(
             x=0.99,
@@ -225,6 +242,7 @@ def trend_line_chart(data):
     )
 
     return fig
+
 
 def radar_chart(data):
     # Rename columns for clarity

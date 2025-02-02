@@ -12,10 +12,11 @@ st.sidebar.image("./data/pil_logo.png")
 #load data
 # File URLs (GitHub raw URLs)
 file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/Q12024_13012025.xlsx"]
-geo_url =  "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q1_map.xlsx"                        
+geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q1_map.xlsx']                      
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
+geo_data = load_geospatial_data(geo_url)
 
 st.header("Analysis")
 
@@ -64,7 +65,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data))
+st.plotly_chart(trend_line_chart(data, 1, 2, 3))
 
 st.subheader("3.2.1 Monthly data")
 
@@ -113,8 +114,6 @@ st.write(data[selected_columns].rename(columns={
 st.markdown("""
 The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, one in the United Kingdom, and two in Australia). There are neither any repeated authors nor repeated universities.
             """)
-
-geo_data = load_geospatial_data(geo_url)
 st.map(data=geo_data, size=100)
 
 st.markdown("""
