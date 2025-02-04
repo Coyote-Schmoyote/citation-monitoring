@@ -181,7 +181,7 @@ with col2:
     st.download_button(
         label="Download the monitoring data",
         data=excel_data,
-        file_name="https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_29012025.xlsx",
+        file_name="2024Q2_29012025.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         type="primary"
     )
