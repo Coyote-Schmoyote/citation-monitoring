@@ -12,7 +12,7 @@ st.sidebar.image("./data/pil_logo.png")
 #load data
 # File URLs (GitHub raw URLs)
 file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250203.xlsx"]
-geo_url =  ['/workspaces/citation-monitoring/data/2024Q3map.xlsx']                     
+geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4map.xlsx']                     
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
@@ -102,12 +102,12 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
+selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution'] 
 
 st.write(data[selected_columns].rename(columns={
     'name_of_the_document_citing_eige': 'Document Citing EIGE',
     'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+    'name_of_the_institution': 'Institution Citing EIGE'
 }))
 
 #st.markdown("""
@@ -170,7 +170,7 @@ col1, col2 = st.columns(2)
 with col1:
         # Create a report download button
     st.download_button(
-        label="Download the Q2 2024 report",
+        label="Download the Q4 2024 report",
         data=file_data,
         file_name="Q12024_report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -181,7 +181,7 @@ with col2:
     st.download_button(
         label="Download the monitoring data",
         data=excel_data,
-        file_name="2024Q2_29012025.xlsx",
+        file_name="2024Q4_20250203.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         type="primary"
     )
