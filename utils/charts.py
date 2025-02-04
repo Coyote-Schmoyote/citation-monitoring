@@ -318,10 +318,10 @@ def radar_chart(data):
 def citation_stack(data):
     """
     Generates a stacked bar chart where each bar represents a document citing EIGE.
-    Each stack represents a citation, and hover text shows the number of citations per document.
+    Each stack represents a citation count (how many times a document appears in the dataset).
 
     Parameters:
-    data (pandas.DataFrame): DataFrame containing citation information with relevant columns.
+    data (pandas.DataFrame): DataFrame containing citation information.
 
     Returns:
     plotly.graph_objects.Figure: The stacked bar chart figure.
@@ -330,45 +330,36 @@ def citation_stack(data):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
-    # Ensure we have one row per citation
-    data['citation_id'] = data.groupby('name_of_the_document_citing_eige').cumcount()
+    # Count how many times each document appears
+    document_counts = data['name_of_the_document_citing_eige'].value_counts().reset_index()
+    document_counts.columns = ['document', 'citation_count']
 
-    # Use the 'number_of_citations_(using_google_scholar)' for the stacking
-    data['citation_count'] = data['number_of_citations_(using_google_scholar)']
-
-    # Create a stacked bar chart with one stack per citation
+    # Create a stacked bar chart
     fig = go.Figure()
 
     # Loop over each unique document and add a trace for the citations
-    documents = data['name_of_the_document_citing_eige'].unique()
-
-    for document in documents:
-        document_data = data[data['name_of_the_document_citing_eige'] == document]
-
-        # Ensure document is a string and truncate the x-label to 15 characters
-        document_str = str(document)
+    for i, row in document_counts.iterrows():
+        document_str = str(row['document'])
         truncated_document_name = document_str[:15] + "..." if len(document_str) > 15 else document_str
 
-        # Only proceed if there is at least one citation for this document
-        if not document_data.empty:
-            # Create the hover text with citation count
-            hover_text = f"Document: {document_str}<br>Citation Count: {document_data['citation_count'].iloc[0]}"
+        # Create the hover text with citation count
+        hover_text = f"Document: {document_str}<br>Citation Count: {row['citation_count']}"
 
-            fig.add_trace(go.Bar(
-                x=[truncated_document_name] * len(document_data),
-                y=document_data['citation_count'],  # Use the actual number of citations for stacking
-                name=document_str,
-                hoverinfo='text',  # Show the custom hover text
-                text=None,  # Full document name and citation count for hover
-                marker=dict(color=px.colors.qualitative.Pastel[len(fig.data) % len(px.colors.qualitative.Pastel)]),  # Color each trace uniquely
-                showlegend=False
-            ))
+        fig.add_trace(go.Bar(
+            x=[truncated_document_name],
+            y=[row['citation_count']],  # Use the count as the stack height
+            name=document_str,
+            hoverinfo='text',
+            text=hover_text,
+            marker=dict(color=px.colors.qualitative.Pastel[i % len(px.colors.qualitative.Pastel)]),
+            showlegend=False
+        ))
 
-    # Update layout to show stacked bar chart and set y-axis ticks to integers
+      # Update layout
     fig.update_layout(
         barmode='stack',
-        title="Citations per Document (Stacked by Citation)",
-        title_font=dict(family="Verdana", size=20, color=colors[0]),
+        title="Citations per Document (Stacked by Frequency)",
+        title_font=dict(family="Verdana", size=20),
         font_size=12,
         xaxis_title="Document Name",
         yaxis_title="Number of Citations",
@@ -376,7 +367,7 @@ def citation_stack(data):
         yaxis=dict(
             tickmode='linear',
             tick0=1,
-            dtick=1,  # Ensure the y-axis ticks are in intervals of 1
+            dtick=1  # Ensure y-axis ticks in intervals of 1
         ),
         template="plotly_white",
         showlegend=False
