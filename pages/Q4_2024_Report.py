@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["/workspaces/citation-monitoring/data/2024Q3_03022025.xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250203.xlsx"]
 geo_url =  ['/workspaces/citation-monitoring/data/2024Q3map.xlsx']                     
 
 # Fetch data using the modified get_data function
@@ -64,7 +64,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, 4, 5, 6))
+st.plotly_chart(trend_line_chart(data, 10, 11, 12))
 
 st.subheader("3.2.1 Monthly data")
 

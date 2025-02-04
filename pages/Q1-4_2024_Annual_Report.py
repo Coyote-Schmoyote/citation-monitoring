@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_29012025.xlsx", "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/Q12024_13012025.xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_29012025.xlsx", "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/Q12024_13012025.xlsx", "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250203.xlsx", "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3_03022025.xlsx"]
 geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q1_map.xlsx", "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_map.xlsx"]                      
 
 # Fetch data using the modified get_data function
@@ -64,7 +64,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, 1, 2, 3, 4, 5, 6))
+st.plotly_chart(trend_line_chart(data, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12))
 
 st.subheader("3.2.1 Monthly data")
 
@@ -102,12 +102,12 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
+selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution'] 
 
 st.write(data[selected_columns].rename(columns={
     'name_of_the_document_citing_eige': 'Document Citing EIGE',
     'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+    'name_of_the_institution': 'Institution Citing EIGE'
 }))
 
 #st.markdown("""
@@ -115,7 +115,7 @@ st.write(data[selected_columns].rename(columns={
 #            """)
 
 geo_data = load_geospatial_data(geo_url)
-st.map(data=geo_data, size=100)
+st.map(data=geo_data, size=400)
 
 #st.markdown("""
 #The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).

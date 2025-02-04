@@ -102,12 +102,12 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
+selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution'] 
 
 st.write(data[selected_columns].rename(columns={
     'name_of_the_document_citing_eige': 'Document Citing EIGE',
     'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+    'name_of_the_institution': 'Institution Citing EIGE'
 }))
 
 #st.markdown("""
