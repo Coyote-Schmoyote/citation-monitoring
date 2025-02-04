@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_29012025%20(1).xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_29012025.xlsx"]
 geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_map.xlsx']                     
 
 # Fetch data using the modified get_data function
@@ -158,7 +158,7 @@ with open(doc_file_path, "rb") as file:
     file_data = file.read()
 
 # Path to your existing Excel file
-excel_file_path = "/workspaces/citation-monitoring/data/2024Q2_29012025.xlsx"
+excel_file_path = "data/2024Q2_29012025.xlsx"
 # Open the Excel file in binary mode
 with open(excel_file_path, "rb") as file:
     excel_data = file.read()

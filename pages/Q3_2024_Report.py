@@ -158,7 +158,7 @@ with open(doc_file_path, "rb") as file:
     file_data = file.read()
 
 # Path to your existing Excel file
-excel_file_path = "/workspaces/citation-monitoring/data/2024Q2_29012025.xlsx"
+excel_file_path = "data/2024Q3_03022025.xlsx"
 # Open the Excel file in binary mode
 with open(excel_file_path, "rb") as file:
     excel_data = file.read()
