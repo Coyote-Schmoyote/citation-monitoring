@@ -86,7 +86,7 @@ st.markdown("""
 The following figures present the types of EIGE outputs mentioned in the period January-March 2024. 
             """)
 
-st.plotly_chart(output_type_bar_chart(data))
+st.plotly_chart(output_type_bar_chart(data, 2024))
 
 st.markdown("""
 February was the most active month, with 5 publications citing various EIGE’s outputs, including reports, BfPA, and thesaurus. Overall, reports (6) were the most commonly cited type of EIGE’s outputs in January-March 2024, followed by gender equality index (2).
@@ -102,7 +102,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(sunburst_chart(data))
+st.plotly_chart(sunburst_chart(data, formatted_months, 2024))
 
 
 st.subheader("3.3 Documents citing EIGE")
@@ -145,7 +145,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(radar_chart(data))
+st.plotly_chart(radar_chart(data, formatted_months, 2024))
 
 st.markdown("""
 Overall, the sentiment of all citations in Q1 2024 was evaluated as positive. Furthermore, the majority of citations were located in the body of the article, rather than just in the abstract or references. The number of times the articles mentioning EIGE were cited in other academic publications was rather limited - the most cited articles (“The impact of the COVID-19 pandemic on part-time jobs and the issue of gender equality” and “Domestic violence and social services in Latvia, Lithuania, Slovakia, and Nigeria: Comparative study”) were each cited 3 times. However, it is important to note that academic publications often gain more traction with time.

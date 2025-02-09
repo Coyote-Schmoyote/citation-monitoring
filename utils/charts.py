@@ -6,7 +6,7 @@ import pandas as pd
 
 colors = px.colors.qualitative.Pastel
 
-def output_type_bar_chart(data):
+def output_type_bar_chart(data, year):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
@@ -71,8 +71,8 @@ def output_type_bar_chart(data):
     # Update layout to show stacked bar chart and set y-axis ticks to integers
     fig.update_layout(
         barmode='stack',
-        title=f"Count of EIGE Outputs by Type ({selected_month})",
-        title_font=dict(family="Verdana", size=20, color='#636EFA'),
+        title=f"Figure 3. Count of EIGE Outputs by Type {selected_month}, {year}",
+        title_font=dict(family="Verdana", size=14),
         font_size=12,
         xaxis=dict(showgrid=False),
         yaxis=dict(
@@ -87,7 +87,7 @@ def output_type_bar_chart(data):
     return fig
 
 
-def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600):
+def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Pastel, height=600):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
@@ -153,8 +153,8 @@ def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600)
     # Update layout with specified height
     fig.update_layout(
     height=height,
-    title="EIGE Output and its types",
-    title_font=dict(family="Verdana", size=20, color=colors[0]),
+    title=f"Figure 4. Breakdown of EIGE's output cited, {months}, {year}",
+    title_font=dict(family="Verdana", size=14),
     font_size=12,)
 
     return fig
@@ -308,8 +308,8 @@ def radar_chart(data, months, year):
                 ticktext=["Low", "Medium", "High"]  # Custom tick labels
             )
         ),
-        title="Radar Chart: Article Comparison by Categories",
-        title_font=dict(family="Verdana", size=20, color=colors[0]),
+        title=f"Figure 7. Impact evaluation of articles citing EIGE, {months}, {year}",
+        title_font=dict(family="Verdana", size=14),
         font_size=12,
         showlegend=True
     )

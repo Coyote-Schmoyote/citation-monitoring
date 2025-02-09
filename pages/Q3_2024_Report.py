@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3_03022025%20(1).xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3_03022025.xlsx"]
 geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3map.xlsx']                     
 
 # Fetch data using the modified get_data function
@@ -46,8 +46,6 @@ st.subheader("3.1 Number of mentions")
 #st.markdown("""
 #In general, the number of mentions to EIGE (15) by academia seems limited when compared to the number of mentions to EIGE made by other institutions. However, due to the nature of the academic publications, the ‘rhythm’ of publishing in general is considerably slower and it is not possible to compare them with other types of publications that do not have such a lengthy and controlled procedure.
 #            """)
-st.write(data.columns)
-
 st.write(f"Number of citations: {data.shape[0]}")
 
 st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
@@ -94,9 +92,7 @@ st.subheader("3.2.1 Monthly data")
 
 st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2024.")
 
-st.write(data["date_of_publication"])
-
-st.plotly_chart(output_type_bar_chart(data))
+st.plotly_chart(output_type_bar_chart(data, 2024))
 
 #st.markdown("""
 #February was the most active month, with 5 publications citing various EIGE’s outputs, including reports, BfPA, and thesaurus. Overall, reports (6) were the most commonly cited type of EIGE’s outputs in January-March 2024, followed by gender equality index (2).
@@ -112,7 +108,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(sunburst_chart(data))
+st.plotly_chart(sunburst_chart(data, formatted_months, 2024))
 
 
 st.subheader("3.3 Documents citing EIGE")
@@ -128,18 +124,56 @@ st.markdown("""
 
 selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution'] 
 
+st.write(f"**Figure 5. Academic publications and journals citing EIGE, {formatted_months}, 2024**")
 st.write(data[selected_columns].drop_duplicates().dropna().rename(columns={
     'name_of_the_document_citing_eige': 'Document Citing EIGE',
     'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
     'name_of_the_institution': 'Institution Citing EIGE'
-}))
+}),
+use_container_width=True)
+
 
 #st.markdown("""
 #The academic publications have been prepared by 34 different authors. Most of them belong to different EU universities (except for one research institution in Mexico, one in the United Kingdom, and two in Australia). There are neither any repeated authors nor repeated universities.
 #            """)
 
 geo_data = load_geospatial_data(geo_url)
+st.write(f"**Figure 6. Location of institutions that cited EIGE, {formatted_months}, 2024**")
 st.map(data=geo_data, size=100)
+
+#-------SPLIT BY AUTHOR
+# Split the 'name_of_the_author/organisation_citing_eige' by commas
+split_values = data["name_of_the_author/organisation_citing_eige"].str.split(",", expand=True)
+# Stack the resulting DataFrame to get a single column of values
+stacked_values = split_values.stack()
+# Count the unique values and how many times each appears
+value_counts = stacked_values.value_counts()
+# Filter to show only the values that appear more than once (i.e., repeating values)
+repeating_values = value_counts[value_counts > 1]
+
+#--------SPLIT BY UNIVERSITY
+# Split the 'name_of_the_universities' column by commas
+split_values_universities = data["name_of_the_institution"].str.split(",", expand=True)
+# Stack the resulting DataFrame to get a single column of university names
+stacked_values_universities = split_values_universities.stack()
+# Count the unique university names and how many times each appears
+value_counts_universities = stacked_values_universities.value_counts()
+# Filter to show only the universities that appear more than once (i.e., repeating universities)
+repeating_universities = value_counts_universities[value_counts_universities > 1]
+
+# Display the result
+st.write(f"The academic publications were prepared by {len(value_counts)} different authors from {len(value_counts_universities)} different universities. There are {len(repeating_values)} repeating authors, and {len(repeating_universities)} repeating universities:")
+
+# Create two columns
+col1, col2 = st.columns(2)
+# Display the repeating universities in the first column
+with col1:
+    st.write("Repeating Universities:")
+    st.write(repeating_universities)
+# Display the count of repeating universities in the second column
+with col2:
+    st.write("Repeating Authors:")
+    st.write(repeating_values)
 
 #st.markdown("""
 #The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
@@ -157,21 +191,21 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(radar_chart(data))
+st.plotly_chart(radar_chart(data, formatted_months, 2024))
 
 #st.markdown("""
 #Overall, the sentiment of all citations in Q1 2024 was evaluated as positive. Furthermore, the majority of citations were located in the body of the article, rather than just in the abstract or references. The number of times the articles mentioning EIGE were cited in other academic publications was rather limited - the most cited articles (“The impact of the COVID-19 pandemic on part-time jobs and the issue of gender equality” and “Domestic violence and social services in Latvia, Lithuania, Slovakia, and Nigeria: Comparative study”) were each cited 3 times. However, it is important to note that academic publications often gain more traction with time.
 #For Q1 it is not possible to assess the impact factor of the journals that include citations to EIGE, as most of them have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus. There are only three journals where the impact factor is publicly available, and they show three different impact factors, being ‘average’ (1), ‘strong’ (1), and ‘very strong’ (1). 
 #            """)
 
-st.markdown("Regarding the use of the citations to EIGE by social media, we have observed that the most frequent media used for citing EIGE’s outputs is X (formerly Twitter) with a total of 32 posts by X users. ")
+st.write(data[["location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference", 
+               "category_of_mention:_1_positive;_0_neutral;_-1_negative",
+               "impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)",
+               "number_of_mentions_in_social_media_using_altmetric"]],
+               use_container_width=True)
 
 st.subheader("3.4.1 Impact ranking")
-#st.markdown("""
-#While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. These rankings will serve as a baseline, and will be used for trend comparison in future reports, as the monitoring team collects more data. 
-#            """)
-
-
+st.markdown("While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. ")
 
 #-----DOWNLOAD
 # Save the reoport

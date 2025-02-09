@@ -42,6 +42,18 @@ def get_data(file_urls):
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
     # Apply transformations
+
+    if "date_of_publication" in data.columns:
+    # Identify rows where there are three consecutive NaNs in the 'date_of_publication' column
+        consecutive_nan = data["date_of_publication"].isna() & data["date_of_publication"].shift().isna()
+    # Get the index of the first occurrence of three consecutive NaNs
+        nan_start_index = consecutive_nan.idxmax() if consecutive_nan.any() else None
+    # If there are three consecutive NaNs, drop rows after the first occurrence
+    if nan_start_index is not None:
+        data = data.iloc[:nan_start_index] 
+    if nan_start_index is not None:
+        data = data.iloc[:nan_start_index]
+
     if "url_of_the_document_citing_eige" in data.columns:
         data.drop("url_of_the_document_citing_eige", axis=1, inplace=True)
 
