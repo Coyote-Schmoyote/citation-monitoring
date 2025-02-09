@@ -30,9 +30,10 @@ unique_months = sorted(
 )
 # Join formatted months
 formatted_months = " - ".join(unique_months)
+# Ensure it's explicitly a string
+formatted_months = str(formatted_months)
 
 #-----INTRO
-
 st.markdown("""
 This section presents the findings and analysis of the quarterly reports (January-March 2024).
             
