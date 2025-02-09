@@ -244,7 +244,7 @@ def trend_line_chart(data, months, year, *args):
     return fig
 
 
-def radar_chart(data):
+def radar_chart(data, months, year):
     # Rename columns for clarity
     data = data.rename(columns={
         'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'impact factor of the journal',
