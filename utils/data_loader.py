@@ -26,12 +26,6 @@ def get_data(file_urls):
             dfs.append(pd.read_excel(file_data))
         return pd.concat(dfs, ignore_index=True)
 
-    def drop_after_consecutive_nans(df, column):
-        """Drop rows after two consecutive NaNs in a specific column."""
-        consecutive_nan = df[column].isna() & df[column].shift(2).isna()
-        nan_start_index = consecutive_nan.idxmax() if consecutive_nan.any() else None
-        return df.iloc[:nan_start_index] if nan_start_index is not None else df
-
     def replace_values_with_other(df, column):
         """Replace values occurring once or marked as 'Unclear' with 'Other'."""
         value_counts = df[column].value_counts()
@@ -48,9 +42,6 @@ def get_data(file_urls):
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
     # Apply transformations
-    if "date_of_publication" in data.columns:
-        data = drop_after_consecutive_nans(data, "date_of_publication")
-
     if "url_of_the_document_citing_eige" in data.columns:
         data.drop("url_of_the_document_citing_eige", axis=1, inplace=True)
 
@@ -59,7 +50,7 @@ def get_data(file_urls):
 
     if "date_of_publication" in data.columns:
         data["date_of_publication"] = pd.to_datetime(
-            data["date_of_publication"], format="%d.%m.%Y", errors="coerce"
+            data["date_of_publication"], format="mixed", errors="raise", dayfirst=True
         )
 
     columns_to_fill = ["type_of_eige's_output_cited_agg", "type_of_eige's_output_cited"]
