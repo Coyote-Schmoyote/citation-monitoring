@@ -159,7 +159,7 @@ def sunburst_chart(data, color_palette=px.colors.qualitative.Pastel, height=600)
 
     return fig
 
-def trend_line_chart(data, *args):
+def trend_line_chart(data, months, year, *args):
     """
     Generates a trend line chart based on the given months.
 
@@ -196,7 +196,7 @@ def trend_line_chart(data, *args):
         x="month",
         y="Count",
         color="type_of_eige's_output_cited",
-        title="Trends in EIGE's Output Cited (Custom Months)",
+        title=f"Figure 2. Trends in EIGE's Output Cited {months}, {year}",
         labels={
             "month": "Month",
             "Count": "Number of Citations",
@@ -315,7 +315,7 @@ def radar_chart(data):
     )
     return fig
 
-def citation_stack(data):
+def citation_stack(data, months, year):
     """
     Generates a stacked bar chart where each bar represents a document citing EIGE.
     Each stack represents a citation count (how many times a document appears in the dataset).
@@ -358,8 +358,8 @@ def citation_stack(data):
       # Update layout
     fig.update_layout(
         barmode='stack',
-        title="Citations per Document (Stacked by Frequency)",
-        title_font=dict(family="Verdana", size=20),
+        title=f"Figure 1. Number of EIGE citations per article, {months} {year}.",
+        title_font=dict(family="Verdana", size=14),
         font_size=12,
         xaxis_title="Document Name",
         yaxis_title="Number of Citations",

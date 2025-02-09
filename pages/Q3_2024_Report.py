@@ -19,9 +19,21 @@ data = get_data(file_urls)
 
 st.header("Analysis")
 
-st.markdown("""
-This section presents the findings and analysis of the quarterly reports (January-March 2024).
+#------EXTRACT DATE-------
+data["month"] = data["date_of_publication"].dt.strftime('%B')
+#group by year and a month
+# Get unique months, ignoring NaN, and sort them in calendar order
+unique_months = sorted(
+    [month for month in data["month"].unique() if pd.notna(month)],  # Ignore NaN values
+    key=lambda x: pd.to_datetime(x, format='%B').month  # Sort by month order
+)
+# Join formatted months
+formatted_months = " - ".join(unique_months)
+
+#------INTRO-----------
+st.write(f"This section presents the findings and analysis of the quarterly reports {formatted_months} 2024.")
             
+st.markdown("""
 The presentation is organised as follows:
 
 - Number of mentions to EIGE (3.1);
@@ -34,13 +46,18 @@ st.subheader("3.1 Number of mentions")
 #st.markdown("""
 #In general, the number of mentions to EIGE (15) by academia seems limited when compared to the number of mentions to EIGE made by other institutions. However, due to the nature of the academic publications, the ‘rhythm’ of publishing in general is considerably slower and it is not possible to compare them with other types of publications that do not have such a lengthy and controlled procedure.
 #            """)
+st.write(data.columns)
+
+st.write(f"Number of citations: {data.shape[0]}")
+
+st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
         Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
-st.plotly_chart(citation_stack(data))
+st.plotly_chart(citation_stack(data, formatted_months, 2024))
 
 #st.markdown("""
 #The 15 citations identified correspond to 10 different articles, which means that most of them only include one citation to EIGE or EIGE’s outputs.
@@ -58,19 +75,26 @@ st.subheader("3.2 EIGE's output cited")
 #Being the current monitoring (Q1) the first one of this monitoring assignment, the monitoring team has no previous data to compare with or to allow the production of trends. 
 #            """)
 
+#------MOST FREQUENT OUTPUT TYPE
+# Get the most frequent type and its count
+most_frequent_type = data["type_of_eige's_output_cited"].value_counts().idxmax()
+count = data["type_of_eige's_output_cited"].value_counts().max()
+
+st.write(f"Most frequent output type is {most_frequent_type} and it appears {count} times.")
+
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
         💡 Use the legend on the right side of the graph to remove or add the elements.
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, 7, 8, 9))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2024, 7, 8, 9))
 
 st.subheader("3.2.1 Monthly data")
 
-#st.markdown("""
-#The following figures present the types of EIGE outputs mentioned in the period January-March 2024. 
-#            """)
+st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2024.")
+
+st.write(data["date_of_publication"])
 
 st.plotly_chart(output_type_bar_chart(data))
 

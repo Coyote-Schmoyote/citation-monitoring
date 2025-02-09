@@ -19,6 +19,19 @@ data = get_data(file_urls)
 
 st.header("Analysis")
 
+#------EXTRACT DATE-------
+data["month"] = data["date_of_publication"].dt.strftime('%B')
+#group by year and a month
+# Get unique months, ignoring NaN, and sort them in calendar order
+unique_months = sorted(
+    [month for month in data["month"].unique() if pd.notna(month)],  # Ignore NaN values
+    key=lambda x: pd.to_datetime(x, format='%B').month  # Sort by month order
+)
+# Join formatted months
+formatted_months = " - ".join(unique_months)
+
+#-----INTRO
+
 st.markdown("""
 This section presents the findings and analysis of the quarterly reports (January-March 2024).
             
@@ -40,7 +53,7 @@ st.markdown("""
         Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
-st.plotly_chart(citation_stack(data))
+st.plotly_chart(citation_stack(data, formatted_months, 2024))
 
 #st.markdown("""
 #The 15 citations identified correspond to 10 different articles, which means that most of them only include one citation to EIGE or EIGE’s outputs.
@@ -64,7 +77,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, 10, 11, 12))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2024, 10, 11, 12))
 
 st.subheader("3.2.1 Monthly data")
 
