@@ -159,6 +159,21 @@ st.markdown("""
 While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. 
 These rankings will serve as a baseline and will be used for trend comparison in future reports, as the monitoring team collects more data. """)
 
+st.markdown("While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. ")
+with st.container():
+    st.dataframe(
+        data[[
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference', 
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
+            'number_of_mentions_in_social_media_using_altmetric'
+        ]]
+        .rename(columns={
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
+            'number_of_mentions_in_social_media_using_altmetric': 'Altmetric'
+        }),
+        use_container_width=True  #
+    )
 
 #-----DOWNLOAD
 # Save the reoport
@@ -183,7 +198,7 @@ with col1:
     st.download_button(
         label="Download the Q2 2024 report",
         data=file_data,
-        file_name="Q12024_report.docx",
+        file_name="Q2_2024_report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         type="primary"
     )
