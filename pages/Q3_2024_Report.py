@@ -174,24 +174,25 @@ st.markdown("""
 Overall, the sentiment of all citations in Q3 2024 was evaluated as positive. Furthermore, the majority of citations (7) were located in the body of the article, rather than just in the abstract or references. 
 For Q3, the impact factor of the journals that include citations to EIGE vary from respectable (2), strong (2), and very strong (2), although it was not possible to record the impact factor of five journals, as they have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus.
 """)
-new_selected_columns = ['location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference', 
-'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
-'number_of_mentions_in_social_media_using_altmetric',
-'ranking/weight'
-]
 
 with st.container():
-    st.write(
-    data[new_selected_columns]
-    .drop_duplicates()
-    .dropna()
-    .rename(columns={
-        'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
-        'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
-        'number_of_mentions_in_social_media_using_altmetric': 'Altmetric',
-        'ranking/weight': 'Weight'
-    })
-)
+    st.dataframe(
+        data[[
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference', 
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
+            'number_of_mentions_in_social_media_using_altmetric',
+            'ranking/weight'
+        ]]
+        .drop_duplicates()
+        .dropna()
+        .rename(columns={
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
+            'number_of_mentions_in_social_media_using_altmetric': 'Altmetric',
+            'ranking/weight': 'Weight'
+        }),
+        use_container_width=True  # ✅ Expands to fit container width
+    )
 
 st.markdown("""
 Regarding the use of the citations to EIGE by social media, we have observed that the most frequent media used for citing EIGE’s outputs is X (formerly Twitter) with a total of five posts by X users. Additionally, one of the publications in Q3 was posted one a Facebook page. 
