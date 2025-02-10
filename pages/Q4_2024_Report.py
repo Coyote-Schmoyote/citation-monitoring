@@ -86,7 +86,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, formatted_months, 2024, 7, 8, 9))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2024, 10, 11, 12))
 
 st.subheader("3.2.1 Monthly data")
 
@@ -198,11 +198,20 @@ st.plotly_chart(radar_chart(data, formatted_months, 2024))
 #For Q1 it is not possible to assess the impact factor of the journals that include citations to EIGE, as most of them have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus. There are only three journals where the impact factor is publicly available, and they show three different impact factors, being ‘average’ (1), ‘strong’ (1), and ‘very strong’ (1). 
 #            """)
 
-st.write(data[["location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference", 
-               "category_of_mention:_1_positive;_0_neutral;_-1_negative",
-               "impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)",
-               "number_of_mentions_in_social_media_using_altmetric"]],
-               use_container_width=True)
+with st.container():
+    st.dataframe(
+        data[[
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference', 
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
+            'number_of_mentions_in_social_media_using_altmetric',
+        ]]
+        .rename(columns={
+            'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
+            'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
+            'number_of_mentions_in_social_media_using_altmetric': 'Altmetric'
+        }),
+        use_container_width=True  #
+    )
 
 st.subheader("3.4.1 Impact ranking")
 st.markdown("While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. ")
