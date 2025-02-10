@@ -189,11 +189,13 @@ with st.container():
             'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference', 
             'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
             'number_of_mentions_in_social_media_using_altmetric',
+            'ranking/weight'
         ]]
         .rename(columns={
             'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
             'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
-            'number_of_mentions_in_social_media_using_altmetric': 'Altmetric'
+            'number_of_mentions_in_social_media_using_altmetric': 'Altmetric',
+            'ranking/weight':'Weight'
         }),
         use_container_width=True  #
     )
