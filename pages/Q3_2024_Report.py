@@ -175,6 +175,13 @@ Overall, the sentiment of all citations in Q3 2024 was evaluated as positive. Fu
 For Q3, the impact factor of the journals that include citations to EIGE vary from respectable (2), strong (2), and very strong (2), although it was not possible to record the impact factor of five journals, as they have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus.
 """)
 
+st.markdown("""
+Regarding the use of the citations to EIGE by social media, we have observed that the most frequent media used for citing EIGE’s outputs is X (formerly Twitter) with a total of five posts by X users. Additionally, one of the publications in Q3 was posted one a Facebook page. 
+These rankings will serve as a baseline and will be used for trend comparison in future reports, as the monitoring team collects more data.
+""")
+
+st.subheader("3.4.1 Impact ranking")
+st.markdown("While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. ")
 with st.container():
     st.dataframe(
         data[[
@@ -194,18 +201,10 @@ with st.container():
         use_container_width=True  # ✅ Expands to fit container width
     )
 
-st.markdown("""
-Regarding the use of the citations to EIGE by social media, we have observed that the most frequent media used for citing EIGE’s outputs is X (formerly Twitter) with a total of five posts by X users. Additionally, one of the publications in Q3 was posted one a Facebook page. 
-These rankings will serve as a baseline and will be used for trend comparison in future reports, as the monitoring team collects more data.
-""")
-
-st.subheader("3.4.1 Impact ranking")
-st.markdown("While the impact metrics described above provide us with a micro view on the academic and social impact of the articles citing EIGE, it does not allow us to conduct a less granular analysis. To ensure comparability between the articles, we attributed a weight to each metric: 0,3 for number of citations, 0,2 for the impact factor and the altmetric, and 0,15 for location and category of the citation. ")
-
 #-----DOWNLOAD
 # Save the reoport
 # Path to your existing .docx file
-doc_file_path = "data/2025-01-15 2024 report.docx"
+doc_file_path = "data/2025-02-010_Q32024_report.docx"
 # Open the file in binary mode
 with open(doc_file_path, "rb") as file:
     file_data = file.read()
