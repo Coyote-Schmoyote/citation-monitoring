@@ -79,10 +79,6 @@ The sunburst chart in Figure 4 breaks down each output category into specific ou
 """)
 
 st.markdown("""
-The sunburst chart below breaks down each output category into specific outputs. 
-""")
-
-st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
         💡 Click on an element too expand the category and  see the breakdown of EIGE's outputs cited. 
     </div>
@@ -117,16 +113,12 @@ st.dataframe(
     use_container_width=True
 )
 
-# Display the table with column width control
-st.data_editor(
-    df,
-    use_container_width=True,
-    column_config={
-        "Document Citing EIGE": st.column_config.TextColumn(width="medium"),  # Options: "small", "medium", "large"
-        "Journal Citing EIGE": st.column_config.TextColumn(width="small"),
-        "Institution Citing EIGE": st.column_config.TextColumn(width="medium")
-    }
-)
+with st.container():
+    st.write(data[selected_columns].drop_duplicates().dropna().rename(columns={
+        'name_of_the_document_citing_eige': 'Document Citing EIGE',
+        'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
+        'name_of_the_institution': 'Institution Citing EIGE'
+        }))
 
 st.markdown("""
 The academic publications have been prepared by 29 different authors in nine different journals, most of them from the EU.
@@ -194,7 +186,9 @@ st.markdown("""
 Overall, the sentiment of all citations in Q3 2024 was evaluated as positive. Furthermore, the majority of citations (7) were located in the body of the article, rather than just in the abstract or references. 
 For Q3, the impact factor of the journals that include citations to EIGE vary from respectable (2), strong (2), and very strong (2), although it was not possible to record the impact factor of five journals, as they have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus.
 """)
-st.dataframe(
+
+with st.container():
+    st.write(
     data[selected_columns]
     .drop_duplicates()
     .dropna()
@@ -203,8 +197,7 @@ st.dataframe(
         'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
         'number_of_mentions_in_social_media_using_altmetric': 'Altmetric',
         'ranking/weight': 'Weight'
-    }),
-    use_container_width=True
+    })
 )
 
 st.write("Location of the citation: 3 - body of the article; 2 - introduction; 1 - bibliography/reference.")
