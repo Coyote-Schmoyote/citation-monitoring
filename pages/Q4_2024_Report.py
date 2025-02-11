@@ -144,13 +144,17 @@ st.write(f"**Figure 6. Location of institutions that cited EIGE, {formatted_mont
 st.map(data=geo_data, size=100)
 
 #-------SPLIT BY AUTHOR
-# Split the 'name_of_the_author/organisation_citing_eige' by commas
+# Split the column by commas
 split_values = data["name_of_the_author/organisation_citing_eige"].str.split(",", expand=True)
-# Stack the resulting DataFrame to get a single column of values
+# Remove leading/trailing spaces
+split_values = split_values.apply(lambda x: x.str.strip())
+# Stack the DataFrame to get a single column
 stacked_values = split_values.stack()
-# Count the unique values and how many times each appears
+# Filter out single-letter values (including those with periods, like "P.")
+stacked_values = stacked_values[stacked_values.str.len() > 2]
+# Count unique values and their occurrences
 value_counts = stacked_values.value_counts()
-# Filter to show only the values that appear more than once (i.e., repeating values)
+# Filter to show only values that appear more than once
 repeating_values = value_counts[value_counts > 1]
 
 #--------SPLIT BY UNIVERSITY
