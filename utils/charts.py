@@ -86,7 +86,6 @@ def output_type_bar_chart(data, year):
     )
     return fig
 
-
 def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Pastel, height=600):
     # Normalize column names for consistent access
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
@@ -376,6 +375,7 @@ def citation_stack(data, months, year):
     return fig
 
 def scatterplot(data):    
+
     # Ensure the necessary columns are present
     required_columns = [
         'date_of_publication', 'ranking/weight', 
@@ -411,4 +411,77 @@ def scatterplot(data):
     return fig
 
 
+def annual_bar(data, year):
+    # Normalize column names for consistent access
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
+    # Drop rows where 'date_of_publication' is NaT or NaN
+    data = data.dropna(subset=['date_of_publication'])
+
+    # Extract quarter and year
+    data['quarter'] = data['date_of_publication'].dt.to_period('Q').astype(str)
+
+    # Define quarter order for sorting
+    quarter_order = [f'Q1 {year}', f'Q2 {year}', f'Q3 {year}', f'Q4 {year}']
+
+    # Create a dropdown menu for selecting the quarter, adding an "All" option
+    quarter_options = ['All'] + sorted(data['quarter'].unique().tolist(), key=lambda x: quarter_order.index(x) if x in quarter_order else len(quarter_order))
+    selected_quarter = st.selectbox("Select a quarter", quarter_options)
+
+    # Filter data based on the selected quarter
+    if selected_quarter == 'All':
+        filtered_data = data
+    else:
+        filtered_data = data[data['quarter'] == selected_quarter]
+
+    # Use the correct column name
+    required_column = "type_of_eige's_output_cited_agg"
+    if required_column not in filtered_data.columns:
+        raise KeyError(
+            f"Column '{required_column}' not found in the dataset. "
+            f"Available columns: {list(filtered_data.columns)}"
+        )
+
+    # Count occurrences of each type of EIGE output per quarter
+    topic_counts = filtered_data.groupby(['quarter', required_column]).size().unstack(fill_value=0)
+
+    # Create a fixed color map based on the type of output (using a predefined color palette)
+    unique_outputs = topic_counts.columns.tolist()
+
+    # Ensure there are enough colors
+    if len(unique_outputs) > len(colors):
+        raise ValueError(f"Not enough colors in the palette. Found {len(unique_outputs)} unique outputs but only {len(colors)} colors.")
+
+    output_color_map = {output: colors[i] for i, output in enumerate(unique_outputs)}
+
+    # Create the bar chart
+    fig = go.Figure()
+
+    for output in unique_outputs:
+        fig.add_trace(go.Bar(
+            x=topic_counts.index,
+            y=topic_counts[output],
+            name=output,
+            marker=dict(color=output_color_map[output]),
+            hovertemplate="<b>Quarter:</b> %{x}<br><b>Type of EIGE's Output:</b> %{customdata[0]}<br><b>Count:</b> %{y}",
+            customdata=[[output] * len(topic_counts.index)]
+        ))
+
+    # Update layout to show stacked bar chart
+    fig.update_layout(
+        barmode='stack',
+        title=f"Figure 3. Count of EIGE Outputs by Type per Quarter, {year}",
+        title_font=dict(family="Verdana", size=14),
+        font_size=12,
+        xaxis=dict(title="Quarter", showgrid=False),
+        yaxis=dict(
+            title="Count",
+            showgrid=False,
+            tickmode='linear',
+            tick0=1,
+            dtick=1
+        ),
+        template="plotly_white"
+    )
+
+    return fig

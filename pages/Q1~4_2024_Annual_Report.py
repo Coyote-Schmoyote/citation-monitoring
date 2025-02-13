@@ -3,7 +3,7 @@ from io import BytesIO
 from docx import Document
 import pandas as pd
 from utils.data_loader import get_data,load_geospatial_data
-from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot
+from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot, annual_bar
 
 # Sidebar navigation using native hamburger menu
 st.sidebar.image("./data/b&s_logo.png")
@@ -58,7 +58,7 @@ st.markdown("""
         Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
-st.plotly_chart(citation_stack(data, formatted_months, 2024))
+st.plotly_chart(annual_bar(data, 2024))
 
 #st.markdown("""
 #The 15 citations identified correspond to 10 different articles, which means that most of them only include one citation to EIGE or EIGE’s outputs.
