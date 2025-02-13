@@ -3,7 +3,7 @@ from io import BytesIO
 from docx import Document
 import pandas as pd
 from utils.data_loader import get_data,load_geospatial_data
-from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot, annual_bar
+from utils.charts import annual_bar, output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart, scatterplot
 
 # Sidebar navigation using native hamburger menu
 st.sidebar.image("./data/b&s_logo.png")

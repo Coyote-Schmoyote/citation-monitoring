@@ -242,7 +242,6 @@ def trend_line_chart(data, months, year, *args):
 
     return fig
 
-
 def radar_chart(data, months, year):
     # Rename columns for clarity
     data = data.rename(columns={
@@ -409,7 +408,6 @@ def scatterplot(data):
     fig.show()
 
     return fig
-
 
 def annual_bar(data, year):
     # Normalize column names for consistent access
