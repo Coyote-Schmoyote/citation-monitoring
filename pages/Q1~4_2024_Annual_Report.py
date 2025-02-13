@@ -19,6 +19,8 @@ geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/he
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
+st.write(data[data["date_of_publication"].dt.year == 2025])
+
 
 st.header("Analysis")
 
