@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = [""]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/ALLQ2024.xlsx"]
 geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q1_map.xlsx",
             "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_map.xlsx",
             "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3map.xlsx",
