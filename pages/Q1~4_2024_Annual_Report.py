@@ -11,7 +11,7 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/ALLQ2024.xlsx"]
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/ALLQ2024_upd.xlsx"]
 geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q1_map.xlsx",
             "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q2_map.xlsx",
             "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q3map.xlsx",
@@ -19,8 +19,6 @@ geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/he
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
-st.write(data[data["date_of_publication"].dt.year == 2025])
-
 
 st.header("Analysis")
 
