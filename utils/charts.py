@@ -71,7 +71,7 @@ def output_type_bar_chart(data, year):
     # Update layout to show stacked bar chart and set y-axis ticks to integers
     fig.update_layout(
         barmode='stack',
-        title=f"Figure 3. Count of EIGE Outputs by Type {selected_month}, {year}",
+        title=f"Count of EIGE Outputs by Type {selected_month}, {year}",
         title_font=dict(family="Verdana", size=14),
         font_size=12,
         xaxis=dict(showgrid=False),
@@ -152,7 +152,7 @@ def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Paste
     # Update layout with specified height
     fig.update_layout(
     height=height,
-    title=f"Figure 4. Breakdown of EIGE's output cited, {months}, {year}",
+    title=f"Breakdown of EIGE's output cited, {months}, {year}",
     title_font=dict(family="Verdana", size=14),
     font_size=12,)
 
@@ -195,7 +195,7 @@ def trend_line_chart(data, months, year, *args):
         x="month",
         y="Count",
         color="type_of_eige's_output_cited",
-        title=f"Figure 2. Trends in EIGE's Output Cited {months}, {year}",
+        title=f"Trends in EIGE's Output Cited {months}, {year}",
         labels={
             "month": "Month",
             "Count": "Number of Citations",
@@ -306,7 +306,7 @@ def radar_chart(data, months, year):
                 ticktext=["Low", "Medium", "High"]  # Custom tick labels
             )
         ),
-        title=f"Figure 7. Impact evaluation of articles citing EIGE, {months}, {year}",
+        title=f"Impact evaluation of articles citing EIGE, {months}, {year}",
         title_font=dict(family="Verdana", size=14),
         font_size=12,
         showlegend=True
@@ -356,7 +356,7 @@ def citation_stack(data, months, year):
       # Update layout
     fig.update_layout(
         barmode='stack',
-        title=f"Figure 1. Number of EIGE citations per article, {months} {year}.",
+        title=f"Number of EIGE citations per article, {months} {year}.",
         title_font=dict(family="Verdana", size=14),
         font_size=12,
         xaxis_title="Document Name",
@@ -468,7 +468,7 @@ def annual_bar(data, year):
     # Update layout to show stacked bar chart
     fig.update_layout(
         barmode='stack',
-        title=f"Figure 3. Count of EIGE Outputs by Type per Quarter, {year}",
+        title=f"Count of EIGE Outputs by Type per Quarter, {year}",
         title_font=dict(family="Verdana", size=14),
         font_size=12,
         xaxis=dict(title="Quarter", showgrid=False),
