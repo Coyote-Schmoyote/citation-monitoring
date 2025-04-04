@@ -11,8 +11,8 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4_20250203.xlsx"]
-geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2024Q4map.xlsx']                     
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/20245Q1.xlsx"]
+geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q1_map.xlsx']                     
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
