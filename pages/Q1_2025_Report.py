@@ -86,7 +86,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 10, 11, 12))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 1, 2, 3))
 
 st.subheader("3.2.1 Monthly data")
 
