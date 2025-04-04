@@ -11,8 +11,8 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/20245Q1.xlsx"]
-geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q1_map.xlsx']                     
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_data/2025Q1.xlsx"]
+geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q1_map.xlsx']                     
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
@@ -31,7 +31,7 @@ unique_months = sorted(
 formatted_months = " - ".join(unique_months)
 
 #------INTRO-----------
-st.write(f"This section presents the findings and analysis of the quarterly reports {formatted_months} 2024.")
+st.write(f"This section presents the findings and analysis of the quarterly reports {formatted_months} 2025.")
             
 st.markdown("""
 The presentation is organised as follows:
@@ -86,13 +86,13 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, formatted_months, 2024, 10, 11, 12))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 10, 11, 12))
 
 st.subheader("3.2.1 Monthly data")
 
-st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2024.")
+st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2025.")
 
-st.plotly_chart(output_type_bar_chart(data, 2024))
+st.plotly_chart(output_type_bar_chart(data, 2025))
 
 #st.markdown("""
 #February was the most active month, with 5 publications citing various EIGE’s outputs, including reports, BfPA, and thesaurus. Overall, reports (6) were the most commonly cited type of EIGE’s outputs in January-March 2024, followed by gender equality index (2).
@@ -108,7 +108,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(sunburst_chart(data, formatted_months, 2024))
+st.plotly_chart(sunburst_chart(data, formatted_months, 2025))
 
 
 st.subheader("3.3 Documents citing EIGE")
@@ -124,13 +124,13 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution'] 
+selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
 
-st.write(f"**Figure 5. Academic publications and journals citing EIGE, {formatted_months}, 2024**")
+st.write(f"**Figure 5. Academic publications and journals citing EIGE, {formatted_months}, 2025**")
 st.write(data[selected_columns].drop_duplicates().dropna().rename(columns={
     'name_of_the_document_citing_eige': 'Document Citing EIGE',
     'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution': 'Institution Citing EIGE'
+    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
 }),
 use_container_width=True)
 
@@ -140,7 +140,7 @@ use_container_width=True)
 #            """)
 
 geo_data = load_geospatial_data(geo_url)
-st.write(f"**Figure 6. Location of institutions that cited EIGE, {formatted_months}, 2024**")
+st.write(f"**Figure 6. Location of institutions that cited EIGE, {formatted_months}, 2025**")
 st.map(data=geo_data, size=100)
 
 #-------SPLIT BY AUTHOR
@@ -155,7 +155,7 @@ repeating_values = value_counts[value_counts > 1]
 
 #--------SPLIT BY UNIVERSITY
 # Split the 'name_of_the_universities' column by commas
-split_values_universities = data["name_of_the_institution"].str.split(",", expand=True)
+split_values_universities = data["name_of_the_institution_citing_eige"].str.split(",", expand=True)
 # Stack the resulting DataFrame to get a single column of university names
 stacked_values_universities = split_values_universities.stack()
 # Count the unique university names and how many times each appears
@@ -228,7 +228,7 @@ with open(doc_file_path, "rb") as file:
     file_data = file.read()
 
 # Path to your existing Excel file
-excel_file_path = "data/2024Q4_20250203.xlsx"
+excel_file_path = "data/2025_data/2025Q1.xlsx"
 # Open the Excel file in binary mode
 with open(excel_file_path, "rb") as file:
     excel_data = file.read()
@@ -240,7 +240,7 @@ col1, col2 = st.columns(2)
 with col1:
         # Create a report download button
     st.download_button(
-        label="Download the Q4 2024 report",
+        label="Download the Q1 2025 report",
         data=file_data,
         file_name="Q42024_report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -251,7 +251,7 @@ with col2:
     st.download_button(
         label="Download the monitoring data",
         data=excel_data,
-        file_name="2024Q4_data.xlsx",
+        file_name="data/2025_data/2025Q1.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         type="primary"
     )
