@@ -17,6 +17,10 @@ geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/he
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
 
+unique_articles = data.dropna(subset=["name_of_the_document_citing_eige"])\
+                      .drop_duplicates(subset="name_of_the_document_citing_eige", keep="first")
+
+
 st.header("Analysis")
 
 #------EXTRACT DATE-------
@@ -116,7 +120,7 @@ st.subheader("3.3 Documents citing EIGE")
 #Due to the nature of the academic publications monitored, it is not surprising to find that this type of documents are all research articles (except for one report). For Q1 we have not identified any books or monographs. 
 #            """)
 
-st.write(f"The articles appeared in {data['name_of_the_journal_citing_eige'].nunique()} different journals.")
+st.write(f"The articles appeared in {unique_articles['name_of_the_journal_citing_eige'].nunique()} different journals.")
 
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
@@ -145,7 +149,7 @@ st.map(data=geo_data, size=100)
 
 #-------SPLIT BY AUTHOR
 # Split the 'name_of_the_author/organisation_citing_eige' by commas
-split_values = data["name_of_the_author/organisation_citing_eige"].str.split(",", expand=True)
+split_values = unique_articles["name_of_the_author/organisation_citing_eige"].str.split(",", expand=True)
 # Stack the resulting DataFrame to get a single column of values
 stacked_values = split_values.stack()
 # Count the unique values and how many times each appears
@@ -155,7 +159,7 @@ repeating_values = value_counts[value_counts > 1]
 
 #--------SPLIT BY UNIVERSITY
 # Split the 'name_of_the_universities' column by commas
-split_values_universities = data["name_of_the_institution_citing_eige"].str.split(",", expand=True)
+split_values_universities = unique_articles["name_of_the_institution_citing_eige"].str.split(",", expand=True)
 # Stack the resulting DataFrame to get a single column of university names
 stacked_values_universities = split_values_universities.stack()
 # Count the unique university names and how many times each appears
@@ -164,18 +168,17 @@ value_counts_universities = stacked_values_universities.value_counts()
 repeating_universities = value_counts_universities[value_counts_universities > 1]
 
 # Display the result
-st.write(f"The academic publications were prepared by {len(value_counts)} different authors from {len(value_counts_universities)} different universities. There are {len(repeating_values)} repeating authors, and {len(repeating_universities)} repeating universities:")
-
+st.write(f"The academic publications were prepared by {len(value_counts_universities)} different universities.")
 # Create two columns
-col1, col2 = st.columns(2)
+#col1, col2 = st.columns(2)
 # Display the repeating universities in the first column
-with col1:
-    st.write("Repeating Universities:")
-    st.write(repeating_universities)
+#with col1:
+#    st.write("Repeating Universities:")
+#    st.write(repeating_universities)
 # Display the count of repeating universities in the second column
-with col2:
-    st.write("Repeating Authors:")
-    st.write(repeating_values)
+#with col2:
+#    st.write("Repeating Authors:")
+#    st.write(repeating_values)
 
 #st.markdown("""
 #The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
