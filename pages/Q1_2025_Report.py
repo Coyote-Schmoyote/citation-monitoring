@@ -50,7 +50,7 @@ st.subheader("3.1 Number of mentions")
 #st.markdown("""
 #In general, the number of mentions to EIGE (15) by academia seems limited when compared to the number of mentions to EIGE made by other institutions. However, due to the nature of the academic publications, the ‘rhythm’ of publishing in general is considerably slower and it is not possible to compare them with other types of publications that do not have such a lengthy and controlled procedure.
 #            """)
-st.write(f"Number of citations: {data.shape[0]}")
+st.write(f"Number of citations: {data.shape[0] -1}")
 
 st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
 

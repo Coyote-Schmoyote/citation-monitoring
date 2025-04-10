@@ -17,58 +17,63 @@ def output_type_bar_chart(data, year):
     data['month_year'] = data['date_of_publication'].dt.strftime('%B %Y')
 
     # Create a dropdown menu for selecting the month, adding an "All" option
-    month_options = ['All'] + data['month_year'].unique().tolist()  # Add "All" as the first option
+    month_options = ['All'] + data['month_year'].unique().tolist()
     selected_month = st.selectbox("Select a month", month_options)
 
     # Filter data based on the selected month
     if selected_month == 'All':
-        filtered_data = data  # No filtering, show all data
+        filtered_data = data
     else:
-        filtered_data = data[data['month_year'] == selected_month]  # Filter by the selected month
+        filtered_data = data[data['month_year'] == selected_month]
 
     # Use the correct column name
     required_column = "type_of_eige's_output_cited_agg"
-    if required_column not in filtered_data.columns:
+    detail_column = "type_of_eige's_output_cited"
+
+    if required_column not in filtered_data.columns or detail_column not in filtered_data.columns:
         raise KeyError(
-            f"Column '{required_column}' not found in the dataset. "
+            f"Required columns not found in the dataset. "
             f"Available columns: {list(filtered_data.columns)}"
         )
+
+    # Drop rows where output type is 'unknown' (case-insensitive)
+    filtered_data = filtered_data[~filtered_data[required_column].str.lower().eq('unknown')]
+
+    # Replace 'other' aggregated type with more specific values from the detailed column
+    other_mask = filtered_data[required_column].str.lower() == 'other'
+    filtered_data.loc[other_mask, required_column] = filtered_data.loc[other_mask, detail_column]
 
     # Count occurrences of each type of EIGE output
     topic_counts = filtered_data[required_column].value_counts()
 
-    # Create a fixed color map based on the type of output (using the provided 'colors' palette)
+    # Create a fixed color map
     unique_outputs = topic_counts.index.tolist()
-    
-    # Ensure there are enough colors in the palette
+
     if len(unique_outputs) > len(colors):
         raise ValueError(f"Not enough colors in the palette. Found {len(unique_outputs)} unique outputs but only {len(colors)} colors.")
 
-    # Create a color map for the unique output types
     output_color_map = {output: colors[i] for i, output in enumerate(unique_outputs)}
 
     # Create the bar chart
     fig = go.Figure()
 
-    # Add the bars for each type of EIGE output
     for output in unique_outputs:
         output_data = filtered_data[filtered_data[required_column] == output]
-        
         fig.add_trace(go.Bar(
-            x=[output] * len(output_data),  # All values of a given output type will have the same x
-            y=[1] * len(output_data),  # Each citation counts as 1 in the stack
+            x=[output] * len(output_data),
+            y=[1] * len(output_data),
             name=output,
-            marker=dict(color=output_color_map.get(output, 'gray')),  # Use 'gray' if output is not in the map
+            marker=dict(color=output_color_map.get(output, 'gray')),
             hovertemplate=(
                 "<b>Type of EIGE's Output:</b> %{customdata[0]}<br>" +
                 "<b>EIGE's Output Cited:</b> %{customdata[1]}<br>" +
                 "%{text}"
             ),
-            customdata=output_data[['type_of_eige\'s_output_cited', 'eige\'s_output_cited']].values,
+            customdata=output_data[[detail_column, "eige's_output_cited"]].values,
             showlegend=False
         ))
 
-    # Update layout to show stacked bar chart and set y-axis ticks to integers
+    # Update layout
     fig.update_layout(
         barmode='stack',
         title=f"Count of EIGE Outputs by Type {selected_month}, {year}",
@@ -79,11 +84,12 @@ def output_type_bar_chart(data, year):
             showgrid=False,
             tickmode='linear',
             tick0=1,
-            dtick=1  # Ensure y-axis ticks are in intervals of 1
+            dtick=1
         ),
         template="plotly_white",
         showlegend=False
     )
+
     return fig
 
 def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Pastel, height=600):
