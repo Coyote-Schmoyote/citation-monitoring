@@ -166,58 +166,69 @@ def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Paste
 
 def trend_line_chart(data, months, year, *args):
     """
-    Generates a trend line chart based on the given months.
+    Generates a trend line chart showing the total number of citations (using Google Scholar)
+    per month, grouped by the type of EIGE's output cited.
 
     Args:
         data (pd.DataFrame): The dataset containing citation data.
-        *args (int): List of months (e.g., 1 for January, 2 for February, ..., 12 for December).
+        months (str): String to display in the chart title (e.g., "January to March").
+        year (int or str): The year to display in the chart title.
+        *args (int): List of months (e.g., 1 for January, ..., 12 for December).
 
     Returns:
         plotly.graph_objects.Figure: The trend line chart figure.
     """
-    # Ensure no more than 12 months are passed
     if len(args) > 12:
         print("Warning: Only the first 12 months will be used.")
         args = args[:12]
 
-    # Normalize column names for consistent access
+    # Normalize column names
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
-    # Convert "date_of_publication" to datetime format for easier manipulation
-    data['date_of_publication'] = pd.to_datetime(data['date_of_publication'])
+    # Rename columns for clarity
+    date_col = 'date_of_publication'
+    type_col = "type_of_eige's_output_cited"
+    citation_col = 'number_of_citations_(using_google_scholar)'
 
-    # Filter data to include only the months passed as arguments (dynamic number of months)
-    data = data[data['date_of_publication'].dt.month.isin(args)]
+    # Convert to datetime
+    data[date_col] = pd.to_datetime(data[date_col], errors='coerce')
 
-    # Aggregate data by month and type of EIGE's output cited
-    data['month'] = data['date_of_publication'].dt.to_period('M').dt.to_timestamp()
-    agg_df = data.groupby(["month", "type_of_eige's_output_cited"]).size().reset_index(name="Count")
+    # Drop rows with missing citation data or publication date
+    data = data.dropna(subset=[date_col, citation_col, type_col])
 
-    colors = px.colors.qualitative.Pastel
+    # Convert citation count to numeric
+    data[citation_col] = pd.to_numeric(data[citation_col], errors='coerce')
+    data = data.dropna(subset=[citation_col])  # Remove if still NaN after conversion
 
-    # Create the line plot
+    # Filter by selected months
+    data = data[data[date_col].dt.month.isin(args)]
+
+    # Extract month for grouping
+    data['month'] = data[date_col].dt.to_period('M').dt.to_timestamp()
+
+    # Group by month and type, summing citation counts
+    agg_df = data.groupby(['month', type_col])[citation_col].sum().reset_index()
+    agg_df.rename(columns={citation_col: 'total_citations'}, inplace=True)
+
+    # Line plot
     fig = px.line(
         agg_df,
-        x="month",
-        y="Count",
-        color="type_of_eige's_output_cited",
+        x='month',
+        y='total_citations',
+        color=type_col,
         title=f"Trends in EIGE's Output Cited {months}, {year}",
         labels={
             "month": "Month",
-            "Count": "Number of Citations",
-            "type_of_eige's_output_cited": "Category"
+            "total_citations": "Number of Citations",
+            type_col: "Category"
         },
         markers=True,
-        color_discrete_sequence=colors
+        color_discrete_sequence=px.colors.qualitative.Pastel
     )
 
-    # Update the line thickness and marker size
-    fig.update_traces(
-        line=dict(width=4),
-        marker=dict(size=10)
-    )
+    # Styling
+    fig.update_traces(line=dict(width=4), marker=dict(size=10))
 
-    # Adjust x-axis ticks to show only unique months
     unique_months = agg_df['month'].dt.strftime('%B').unique()
     fig.update_layout(
         xaxis=dict(
@@ -247,6 +258,7 @@ def trend_line_chart(data, months, year, *args):
     )
 
     return fig
+
 
 def radar_chart(data, months, year):
     # Rename columns for clarity
@@ -319,39 +331,63 @@ def radar_chart(data, months, year):
     )
     return fig
 
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
 def citation_stack(data, months, year):
     """
     Generates a stacked bar chart where each bar represents a document citing EIGE.
-    Each stack represents a citation count (how many times a document appears in the dataset).
+    Each bar's height represents the total number of citations from Google Scholar.
 
     Parameters:
     data (pandas.DataFrame): DataFrame containing citation information.
+    months (str): The month range to display in the title.
+    year (int or str): The year to display in the title.
 
     Returns:
     plotly.graph_objects.Figure: The stacked bar chart figure.
     """
     
-    # Normalize column names for consistent access
+    # Normalize column names
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
 
-    # Count how many times each document appears
-    document_counts = data['name_of_the_document_citing_eige'].value_counts().reset_index()
-    document_counts.columns = ['document', 'citation_count']
+    # Rename columns for convenience
+    doc_col = 'name_of_the_document_citing_eige'
+    cite_col = 'number_of_citations_(using_google_scholar)'
 
-    # Create a stacked bar chart
+    # Drop rows where document name or citation count is missing
+    data = data.dropna(subset=[doc_col, cite_col])
+
+    # Ensure citation counts are numeric
+    data[cite_col] = pd.to_numeric(data[cite_col], errors='coerce')
+
+    # Drop any remaining NaN values (after coercion)
+    data = data.dropna(subset=[cite_col])
+
+    # Group by document and sum citation counts
+    citation_sums = data.groupby(doc_col)[cite_col].sum().reset_index()
+    citation_sums.columns = ['document', 'total_citations']
+
+    # Sort by citation count
+    citation_sums = citation_sums.sort_values(by='total_citations', ascending=False)
+
+    # Create figure
     fig = go.Figure()
 
-    # Loop over each unique document and add a trace for the citations
-    for i, row in document_counts.iterrows():
+    for i, row in citation_sums.iterrows():
         document_str = str(row['document'])
         truncated_document_name = document_str[:15] + "..." if len(document_str) > 15 else document_str
 
-        # Create the hover text with citation count
-        hover_text = f"Document: {document_str}<br>Citation Count: {row['citation_count']}"
+        hover_text = f"{document_str}<br>Total Citations: {int(row['total_citations'])}"
 
         fig.add_trace(go.Bar(
             x=[truncated_document_name],
-            y=[row['citation_count']],  # Use the count as the stack height
+            y=[row['total_citations']],
             name=document_str,
             hoverinfo='text',
             text=hover_text,
@@ -359,7 +395,7 @@ def citation_stack(data, months, year):
             showlegend=False
         ))
 
-      # Update layout
+    # Layout
     fig.update_layout(
         barmode='stack',
         title=f"Number of EIGE citations per article, {months} {year}.",
@@ -371,13 +407,14 @@ def citation_stack(data, months, year):
         yaxis=dict(
             tickmode='linear',
             tick0=1,
-            dtick=1  # Ensure y-axis ticks in intervals of 1
+            dtick=1
         ),
         template="plotly_white",
         showlegend=False
     )
 
     return fig
+
 
 def scatterplot(data):    
 
