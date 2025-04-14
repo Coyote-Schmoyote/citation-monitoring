@@ -260,6 +260,7 @@ def trend_line_chart(data, months, year, *args):
     return fig
 
 
+
 def radar_chart(data, months, year):
     # Rename columns for clarity
     data = data.rename(columns={
@@ -331,9 +332,6 @@ def radar_chart(data, months, year):
     )
     return fig
 
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -383,7 +381,7 @@ def citation_stack(data, months, year):
         document_str = str(row['document'])
         truncated_document_name = document_str[:15] + "..." if len(document_str) > 15 else document_str
 
-        hover_text = f"{document_str}<br>Total Citations: {int(row['total_citations'])}"
+        hover_text = f"Document: {document_str}<br>Total Citations: {int(row['total_citations'])}"
 
         fig.add_trace(go.Bar(
             x=[truncated_document_name],
