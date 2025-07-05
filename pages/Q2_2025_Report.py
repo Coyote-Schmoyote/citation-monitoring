@@ -170,7 +170,7 @@ value_counts_universities = stacked_values_universities.value_counts()
 repeating_universities = value_counts_universities[value_counts_universities > 1]
 
 # Display the result
-st.write(f"The academic publications were prepared by {len(value_counts_universities)-2} different universities and institutions.")
+st.write(f"The academic publications were prepared by {len(value_counts_universities)} different universities and institutions.")
 # Create two columns
 #col1, col2 = st.columns(2)
 # Display the repeating universities in the first column
