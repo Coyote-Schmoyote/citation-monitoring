@@ -52,7 +52,7 @@ st.subheader("3.1 Number of mentions")
 #            """)
 
 total_citations = pd.to_numeric(data["number_of_citations_(using_google_scholar)"], errors='coerce').fillna(0).astype(int).sum()
-st.write(f"Number of citations: {total_citations-30}")
+st.write(f"Number of citations: {total_citations}")
 
 st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
 
