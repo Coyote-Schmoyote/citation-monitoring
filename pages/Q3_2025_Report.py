@@ -11,8 +11,8 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_data/2025Q2.xlsx"]
-geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q2_map.xlsx']                     
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_data/2025Q3.xlsx"]
+geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q3_map.xlsx']                     
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
@@ -91,7 +91,6 @@ st.markdown("""
 st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 4, 5, 6))
 
 st.markdown("""
-When compared to the previous monitoring period (Q1 2025), it is worth noting the similarity in the number of the most frequently used output (6 reports in Q1 2025 versus 7 reports in Q2 2025).
 """)
 
 st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2025.")
@@ -117,8 +116,7 @@ st.plotly_chart(sunburst_chart(data, formatted_months, 2025))
 
 st.subheader("Documents citing EIGE")
 st.markdown("""
-Due to the nature of the academic publications monitored, it is not surprising to find that this type of documents are all research articles. For Q2 we have not identified any reports, books or monographs. 
-The academic publications have been prepared by 37 different authors mostly from universities (21) in 8 different journals.
+
             """)
 st.markdown("""
     <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
@@ -138,8 +136,6 @@ use_container_width=True)
 
 
 st.markdown("""
-The majority of authors belonged to research institutions in the EU: Italy, Spain, Netherlands, Sweden, Switzerland, Poland, and Cyprus. Italy is the country with the highest number of authors from different universities (6) with publications citing EIGE. Additionally, there were 2 institutes located in Canada, 1 in the United States, and 1 in Australia.
-The following map shows the location of the institutions that cite EIGE’s outputs.
 
 """)
 
@@ -185,7 +181,6 @@ repeating_universities = value_counts_universities[value_counts_universities > 1
 #            """)
 st.subheader("Impact evaluation of documents citing EIGE")
 st.markdown("""
-For Q2 it is not possible to assess the impact factor of the journals that include citations to EIGE, as most of them have not been recorded on the tool that is used for allocating the impact factor, i.e. Scopus. The following figure shows the impact evaluation of articles citing EIGE, for Q2 2025.
 
 """)
 #st.markdown("""
@@ -200,8 +195,6 @@ st.markdown("""
 st.plotly_chart(radar_chart(data, formatted_months, 2024))
 
 st.markdown("""
-Overall, the sentiment of all citations in Q2 2025 was evaluated as positive. Furthermore, the majority of citations (8) were in the body of the article, rather than just in the abstract or references. 
-Regarding the use of the citations to EIGE by social media, we have observed that the most frequent media used for citing EIGE’s outputs is X with a total of 6 posts by X users, followed by 3 posts by BlueSky users. In general, the use of social media seems rather limited. 
             """)
 
 st.subheader("Impact ranking")
@@ -244,7 +237,7 @@ col1, col2 = st.columns(2)
 with col1:
         # Create a report download button
     st.download_button(
-        label="Download the Q2 2025 report",
+        label="Download the Q3 2025 report",
         data=file_data,
         file_name="Q42024_report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -255,7 +248,7 @@ with col2:
     st.download_button(
         label="Download the monitoring data",
         data=excel_data,
-        file_name="data/2025_data/2025Q2.xlsx",
+        file_name="data/2025_data/2025Q3.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         type="primary"
     )
