@@ -61,7 +61,7 @@ st.markdown("""
         Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
     </div>
 """, unsafe_allow_html=True)
-st.plotly_chart(citation_stack(data, formatted_months, 2024))
+st.plotly_chart(citation_stack(data, formatted_months, 2025))
 
 #st.markdown("""
 #The 15 citations identified correspond to 10 different articles, which means that most of them only include one citation to EIGE or EIGE’s outputs.
@@ -133,12 +133,17 @@ st.markdown("""
 selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
 
 st.write(f"**Figure 5. Academic publications and journals citing EIGE, {formatted_months}, 2025**")
-st.write(data[selected_columns].drop_duplicates().dropna().rename(columns={
-    'name_of_the_document_citing_eige': 'Document Citing EIGE',
-    'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
-}),
-use_container_width=True)
+
+try:
+    df = data[selected_columns].drop_duplicates().dropna().rename(columns={
+        'name_of_the_document_citing_eige': 'Document Citing EIGE',
+        'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
+        'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+    })
+    st.dataframe(df, use_container_width=True)
+except Exception as e:
+    st.error(f"Error: {e}")
+    st.write("Columns in data:", data.columns.tolist())
 
 
 #st.markdown("""

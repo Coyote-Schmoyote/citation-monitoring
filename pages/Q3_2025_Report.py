@@ -49,33 +49,24 @@ The presentation is organised as follows:
 #-----------3.1 NUMBER OF MENTIONS
 st.subheader("3.1 Number of mentions")
 
-st.markdown("""In general, the number of mentions to EIGE (26) by academia has decreased when compared to Q1 2025 (33). However, when comparing it with the same period of 2024 (Q2) the number of citations has increased, compared to 17 citations to EIGE from 8 different documents.
-The 26 citations identified correspond to 8 different articles, including one article with 13 citations to EIGE.""")
-
 total_citations = pd.to_numeric(data["number_of_citations_(using_google_scholar)"], errors='coerce').fillna(0).astype(int).sum()
 
-st.markdown("""
-    <div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
-        Download the charts by hovering over the image and clicking on the 📷 symbol in the top panel. 
-    </div>
-""", unsafe_allow_html=True)
-st.plotly_chart(citation_stack(data, formatted_months, 2024))
+st.markdown('''
+<div style="background-color: #949494; color: white; padding: 10px; border-radius: 8px;">
+        Download the charts by hovering over the image and clicking on the &#128247; symbol in the top panel. 
+</div>
+''', unsafe_allow_html=True)
 
-#st.markdown("""
+
+st.plotly_chart(citation_stack(data, formatted_months, 2025))
+
+st.write(f"Total citaitons: {total_citations}")
+st.write(f"Total articles: {data['name_of_the_document_citing_eige'].nunique()}")
 #The 15 citations identified correspond to 10 different articles, which means that most of them only include one citation to EIGE or EIGE’s outputs.
 #""")
 
 #----------3.2 EIGE's output cited
 st.subheader("EIGE's output cited")
-
-st.markdown("""
-The academic articles identified refer to 10 different EIGE’s outputs (reports, good practice, work programme, factsheet, toolkit, thesaurus, web section (index), gender statistics database, and general reference to EIGE). The most frequently used output in Q2 is a report (seven citations). 
-            """)
-
-#st.markdown("""
-#Regarding the reports cited, it is worth noting that (a) there are no repeated reports cited, and (b) the dates of the reports correspond to the past 10 years. 
-#Being the current monitoring (Q1) the first one of this monitoring assignment, the monitoring team has no previous data to compare with or to allow the production of trends. 
-#            """)
 
 #------MOST FREQUENT OUTPUT TYPE
 # Get the most frequent type and its count
@@ -88,7 +79,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 4, 5, 6))
+st.plotly_chart(trend_line_chart(data, formatted_months, 2025, 7, 8, 9))
 
 st.markdown("""
 """)
@@ -96,10 +87,6 @@ st.markdown("""
 st.write(f"The following figures present the types of EIGE output mentioned in the period {formatted_months} 2025.")
 
 st.plotly_chart(output_type_bar_chart(data, 2025))
-
-#st.markdown("""
-#February was the most active month, with 5 publications citing various EIGE’s outputs, including reports, BfPA, and thesaurus. Overall, reports (6) were the most commonly cited type of EIGE’s outputs in January-March 2024, followed by gender equality index (2).
-#            """)
 
 st.markdown("""
 The sunburst chart below breaks down each output category into specific outputs. 
@@ -127,17 +114,17 @@ st.markdown("""
 selected_columns = ['name_of_the_document_citing_eige', 'name_of_the_journal_citing_eige', 'name_of_the_institution_citing_eige'] 
 
 st.write(f"**Figure 5. Academic publications and journals citing EIGE, {formatted_months}, 2025**")
-st.write(data[selected_columns].drop_duplicates().dropna().rename(columns={
-    'name_of_the_document_citing_eige': 'Document Citing EIGE',
-    'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
-    'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
-}),
-use_container_width=True)
 
-
-st.markdown("""
-
-""")
+try:
+    df = data[selected_columns].drop_duplicates().dropna().rename(columns={
+        'name_of_the_document_citing_eige': 'Document Citing EIGE',
+        'name_of_the_journal_citing_eige': 'Journal Citing EIGE',
+        'name_of_the_institution_citing_eige': 'Institution Citing EIGE'
+    })
+    st.dataframe(df, use_container_width=True)
+except Exception as e:
+    st.error(f"Error: {e}")
+    st.write("Columns in data:", data.columns.tolist())
 
 geo_data = load_geospatial_data(geo_url)
 st.write(f"**Figure 6. Location of institutions that cited EIGE, {formatted_months}, 2025**")
@@ -225,7 +212,7 @@ with open(doc_file_path, "rb") as file:
     file_data = file.read()
 
 # Path to your existing Excel file
-excel_file_path = "data/2025_data/2025Q2.xlsx"
+excel_file_path = "data/2025_data/2025Q3.xlsx"
 # Open the Excel file in binary mode
 with open(excel_file_path, "rb") as file:
     excel_data = file.read()
