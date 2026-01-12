@@ -7,56 +7,52 @@ import pandas as pd
 colors = px.colors.qualitative.Pastel
 
 def output_type_bar_chart(data, year):
-    # normalize column names
     data = data.copy()
     data.columns = data.columns.str.strip().str.lower().str.replace(" ", "_")
 
-    # drop invalid dates
     data = data.dropna(subset=["date_of_publication"])
-
-    # extract month + year
     data["month_year"] = data["date_of_publication"].dt.strftime("%B %Y")
 
-    # month selector
     month_options = ["All"] + sorted(data["month_year"].unique().tolist())
     selected_month = st.selectbox("Select a month", month_options)
 
     if selected_month != "All":
         data = data[data["month_year"] == selected_month]
 
-    required_column = "type_of_eige's_output_cited_agg"
-    detail_column = "type_of_eige's_output_cited"
+    agg_col = "type_of_eige's_output_cited_agg"
+    detail_col = "type_of_eige's_output_cited"
 
-    if required_column not in data.columns or detail_column not in data.columns:
+    if agg_col not in data.columns or detail_col not in data.columns:
         raise KeyError(
             f"Required columns missing. Available columns: {list(data.columns)}"
         )
 
     # drop unknowns
-    data = data[~data[required_column].str.lower().eq("unknown")]
+    data = data[~data[agg_col].str.lower().eq("unknown")]
 
-    # expand "Other" back to detailed values
-    other_mask = data[required_column].str.lower() == "other"
-    data.loc[other_mask, required_column] = data.loc[other_mask, detail_column]
+    # expand "Other"
+    other_mask = data[agg_col].str.lower() == "other"
+    data.loc[other_mask, agg_col] = data.loc[other_mask, detail_col]
 
-    # count outputs
+    # ✅ explicit, readable counting
     topic_counts = (
-        data[required_column]
+        data[agg_col]
         .value_counts()
-        .reset_index()
-        .rename(columns={"index": "output_type", required_column: "count"})
+        .rename_axis("output_type")
+        .reset_index(name="count")
     )
 
-    # 🎨 dynamic, infinite color palette
+    # 🎨 infinite palette
     base_palette = px.colors.qualitative.Safe
     extended_palette = (
         base_palette
         * ((len(topic_counts) // len(base_palette)) + 1)
     )[:len(topic_counts)]
 
-    color_map = dict(zip(topic_counts["output_type"], extended_palette))
+    color_map = dict(
+        zip(topic_counts["output_type"], extended_palette)
+    )
 
-    # build chart
     fig = px.bar(
         topic_counts,
         x="output_type",
@@ -65,12 +61,11 @@ def output_type_bar_chart(data, year):
         color_discrete_map=color_map,
         labels={
             "output_type": "EIGE output",
-            "count": "Number of citations"
+            "count": "Number of citations",
         },
     )
 
     fig.update_layout(
-        showlegend=True,
         xaxis_title=None,
         yaxis_title="Number of citations",
         legend_title_text="EIGE output",
