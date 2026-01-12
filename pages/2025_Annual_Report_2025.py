@@ -55,8 +55,8 @@ st.write(
 
 data_summary = {
     "Quarter": ["Q1", "Q2", "Q3", "Q4", "Total 2025"],
-    "Number of publications": [10, 8, 10, 13, 41],
-    "Number of mentions": [15, 17, 10, 27, 69]
+    "Number of publications": [25, 11, 20, 13, 69],
+    "Number of mentions": [38, 26, 28, 16, 108]
 }
 
 st.dataframe(data_summary)

@@ -17,9 +17,7 @@ geo_url =  ['https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/he
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
 
-unique_articles = data.dropna(subset=["name_of_the_document_citing_eige"])\
-                      .drop_duplicates(subset="name_of_the_document_citing_eige", keep="first")
-
+unique_articles = data.drop_duplicates(subset="name_of_the_document_citing_eige")
 
 st.header("Analysis")
 
@@ -52,7 +50,8 @@ st.subheader("3.1 Number of mentions")
 #            """)
 
 total_citations = pd.to_numeric(data["number_of_citations_(using_google_scholar)"], errors='coerce').fillna(0).astype(int).sum()
-st.write(f"Number of citations: {total_citations}")
+
+st.write(f"Number of mentions: {len(data)}")
 
 st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
 
