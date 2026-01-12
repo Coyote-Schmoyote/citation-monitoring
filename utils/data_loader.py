@@ -4,6 +4,12 @@ import streamlit as st
 
 @st.cache_data
 def get_data(filepath):
+    # --- accept single-item list just in case ---
+    if isinstance(filepath, list):
+        if len(filepath) == 0:
+            raise ValueError("Empty file list provided.")
+        filepath = filepath[0]
+
     data = pd.read_excel(filepath, engine="openpyxl")
 
     data.columns = (
@@ -49,27 +55,4 @@ def get_data(filepath):
             data[col] = data[col].fillna("Unknown")
 
     if "eige's_output_cited" in data.columns:
-        data["short_labels"] = data["eige's_output_cited"].apply(
-            lambda x: x[:16] + "..." if isinstance(x, str) and len(x) > 15 else x
-        )
-
-    return data
-
-
-@st.cache_data
-def load_geospatial_data(filepath):
-    data = pd.read_excel(filepath, engine="openpyxl")
-
-    data.columns = (
-        data.columns
-        .str.strip()
-        .str.lower()
-        .str.replace(" ", "_")
-    )
-
-    if not {"latitude", "longitude"}.issubset(data.columns):
-        raise ValueError("Latitude and longitude columns not found.")
-
-    data = data.dropna(subset=["latitude", "longitude"])
-
-    return data
+        data["short_labels"] =_]()
