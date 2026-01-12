@@ -23,7 +23,7 @@ def get_data(file_urls):
         for url in urls:
             response = requests.get(url)
             file_data = BytesIO(response.content)
-            dfs.append(pd.read_excel(file_data))
+            dfs.append(pd.read_excel(file_data, engine="openpyxl"))
         return pd.concat(dfs, ignore_index=True)
 
     def replace_values_with_other(df, column):
