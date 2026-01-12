@@ -1,17 +1,32 @@
 import pandas as pd
 import streamlit as st
+from io import BytesIO
+import requests
 
 
 @st.cache_data
-def get_data(filepath):
-    # --- accept single-item list just in case ---
-    if isinstance(filepath, list):
-        if len(filepath) == 0:
-            raise ValueError("Empty file list provided.")
-        filepath = filepath[0]
+def get_data(file_urls):
+    # accept single URL or list
+    if isinstance(file_urls, str):
+        file_urls = [file_urls]
 
-    data = pd.read_excel(filepath, engine="openpyxl")
+    if not isinstance(file_urls, list) or len(file_urls) == 0:
+        raise ValueError("file_urls must be a non-empty list or a single URL.")
 
+    dfs = []
+
+    for url in file_urls:
+        response = requests.get(url)
+        response.raise_for_status()  # fails loudly if GitHub returns HTML / 404
+
+        file_bytes = BytesIO(response.content)
+
+        df = pd.read_excel(file_bytes, engine="openpyxl")
+        dfs.append(df)
+
+    data = pd.concat(dfs, ignore_index=True)
+
+    # normalize columns
     data.columns = (
         data.columns
         .str.strip()
@@ -30,8 +45,7 @@ def get_data(filepath):
             & data["date_of_publication"].shift().isna()
         )
         if nan_mask.any():
-            cutoff = nan_mask.idxmax()
-            data = data.iloc[:cutoff]
+            data = data.iloc[:nan_mask.idxmax()]
 
     if "url_of_the_document_citing_eige" in data.columns:
         data.drop(columns=["url_of_the_document_citing_eige"], inplace=True)
@@ -58,30 +72,5 @@ def get_data(filepath):
         data["short_labels"] = data["eige's_output_cited"].apply(
             lambda x: x[:16] + "..." if isinstance(x, str) and len(x) > 15 else x
         )
-
-    return data
-
-
-@st.cache_data
-def load_geospatial_data(filepath):
-    # --- same list-guard here ---
-    if isinstance(filepath, list):
-        if len(filepath) == 0:
-            raise ValueError("Empty file list provided.")
-        filepath = filepath[0]
-
-    data = pd.read_excel(filepath, engine="openpyxl")
-
-    data.columns = (
-        data.columns
-        .str.strip()
-        .str.lower()
-        .str.replace(" ", "_")
-    )
-
-    if not {"latitude", "longitude"}.issubset(data.columns):
-        raise ValueError("Latitude and longitude columns not found.")
-
-    data = data.dropna(subset=["latitude", "longitude"])
 
     return data
