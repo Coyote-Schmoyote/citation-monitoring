@@ -213,18 +213,19 @@ Considering the allocated weights, the publications citing EIGE with the highest
 
 with st.container():
     st.dataframe(
-        data[[
-            'name_of_the_document_citing_eige', 
-
-            'ranking/weight'
+        data
+        .sort_values("ranking/weight", ascending=False)
+        [[
+            "name_of_the_document_citing_eige",
+            "ranking/weight"
         ]]
         .rename(columns={
-
-            'name_of_the_document_citing_eige': 'Document citing EIGE',
-            'ranking/weight':'Weight'
+            "name_of_the_document_citing_eige": "Document citing EIGE",
+            "ranking/weight": "Weight"
         }),
-        use_container_width=True  #
+        use_container_width=True
     )
+
 
 
 
