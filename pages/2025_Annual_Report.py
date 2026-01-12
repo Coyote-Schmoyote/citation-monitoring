@@ -159,27 +159,27 @@ repeating_values = value_counts[value_counts > 1]
 
 #--------SPLIT BY UNIVERSITY
 # Split the 'name_of_the_universities' column by commas
-split_values_universities = data["name_of_the_institution"].str.split(",", expand=True)
+#split_values_universities = data["name_of_the_institution"].str.split(",", expand=True)
 # Stack the resulting DataFrame to get a single column of university names
-stacked_values_universities = split_values_universities.stack()
+#stacked_values_universities = split_values_universities.stack()
 # Count the unique university names and how many times each appears
-value_counts_universities = stacked_values_universities.value_counts()
+#value_counts_universities = stacked_values_universities.value_counts()
 # Filter to show only the universities that appear more than once (i.e., repeating universities)
-repeating_universities = value_counts_universities[value_counts_universities > 1]
+#repeating_universities = value_counts_universities[value_counts_universities > 1]
 
 # Display the result
-st.write(f"The academic publications were prepared by {len(value_counts)} different authors from {len(value_counts_universities)} different universities. There are {len(repeating_values)} repeating authors, and {len(repeating_universities)} repeating universities:")
+#st.write(f"The academic publications were prepared by {len(value_counts)} different authors from {len(value_counts_universities)} different universities. There are {len(repeating_values)} repeating authors, and {len(repeating_universities)} repeating universities:")
 
 # Create two columns
-col1, col2 = st.columns(2)
+#col1, col2 = st.columns(2)
 # Display the repeating universities in the first column
-with col1:
-    st.write("Repeating Universities:")
-    st.write(repeating_universities)
+#with col1:
+#    st.write("Repeating Universities:")
+#    st.write(repeating_universities)
 # Display the count of repeating universities in the second column
-with col2:
-    st.write("Repeating Authors:")
-    st.write(repeating_values)
+#with col2:
+#    st.write("Repeating Authors:")
+#    st.write(repeating_values)
 
 #st.markdown("""
 #The articles citing to EIGE have been published in 9 different journals, most of them from the EU (7).
