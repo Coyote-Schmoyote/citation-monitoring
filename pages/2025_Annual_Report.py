@@ -11,12 +11,12 @@ st.sidebar.image("./data/pil_logo.png")
 
 #load data
 # File URLs (GitHub raw URLs)
-file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_all.xlsx"
+file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_data/2025_all.xlsx"
              ]
-geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q1_map.xlsx",
-            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q2_map.xlsx",
-            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q3_map.xlsx",
-            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025Q4_map.xlsx"]                      
+geo_url =  ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q1_map.xlsx",
+            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q2_map.xlsx",
+            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q3_map.xlsx",
+            "https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_maps/2025Q4_map.xlsx"]                      
 
 # Fetch data using the modified get_data function
 data = get_data(file_urls)
