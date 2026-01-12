@@ -4,6 +4,7 @@ from io import BytesIO
 import requests
 
 
+# ---------- REGULAR (ANALYTICAL) DATA ----------
 @st.cache_data
 def get_data(file_urls):
     # accept single URL or list
@@ -17,10 +18,9 @@ def get_data(file_urls):
 
     for url in file_urls:
         response = requests.get(url)
-        response.raise_for_status()  # fails loudly if GitHub returns HTML / 404
+        response.raise_for_status()
 
         file_bytes = BytesIO(response.content)
-
         df = pd.read_excel(file_bytes, engine="openpyxl")
         dfs.append(df)
 
@@ -36,7 +36,7 @@ def get_data(file_urls):
 
     def replace_values_with_other(df, column):
         counts = df[column].value_counts()
-        to_replace = counts[(counts <= 1) | (counts.index == "Unclear")].index
+        to_replace = counts[(counts <= 1) | (counts.index == "unclear")].index
         df[f"{column}_agg"] = df[column].replace(to_replace, "Other")
 
     if "date_of_publication" in data.columns:
@@ -47,19 +47,18 @@ def get_data(file_urls):
         if nan_mask.any():
             data = data.iloc[:nan_mask.idxmax()]
 
-    if "url_of_the_document_citing_eige" in data.columns:
-        data.drop(columns=["url_of_the_document_citing_eige"], inplace=True)
-
-    if "type_of_eige's_output_cited" in data.columns:
-        replace_values_with_other(data, "type_of_eige's_output_cited")
-
-    if "date_of_publication" in data.columns:
         data["date_of_publication"] = pd.to_datetime(
             data["date_of_publication"],
             format="mixed",
             errors="coerce",
             dayfirst=True
         )
+
+    if "url_of_the_document_citing_eige" in data.columns:
+        data.drop(columns=["url_of_the_document_citing_eige"], inplace=True)
+
+    if "type_of_eige's_output_cited" in data.columns:
+        replace_values_with_other(data, "type_of_eige's_output_cited")
 
     for col in [
         "type_of_eige's_output_cited",
@@ -72,5 +71,43 @@ def get_data(file_urls):
         data["short_labels"] = data["eige's_output_cited"].apply(
             lambda x: x[:16] + "..." if isinstance(x, str) and len(x) > 15 else x
         )
+
+    return data
+
+
+# ---------- GEOSPATIAL DATA ----------
+@st.cache_data
+def load_geospatial_data(geo_urls):
+    # accept single URL or list
+    if isinstance(geo_urls, str):
+        geo_urls = [geo_urls]
+
+    if not isinstance(geo_urls, list) or len(geo_urls) == 0:
+        raise ValueError("geo_urls must be a non-empty list or a single URL.")
+
+    dfs = []
+
+    for url in geo_urls:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        file_bytes = BytesIO(response.content)
+        df = pd.read_excel(file_bytes, engine="openpyxl")
+        dfs.append(df)
+
+    data = pd.concat(dfs, ignore_index=True)
+
+    # normalize columns
+    data.columns = (
+        data.columns
+        .str.strip()
+        .str.lower()
+        .str.replace(" ", "_")
+    )
+
+    if not {"latitude", "longitude"}.issubset(data.columns):
+        raise ValueError("Latitude and longitude columns not found.")
+
+    data = data.dropna(subset=["latitude", "longitude"])
 
     return data
