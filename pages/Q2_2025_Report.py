@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.data_loader import get_data, load_geospatial_data
-from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, citation_stack, radar_chart
+from utils.charts import output_type_bar_chart, sunburst_chart, trend_line_chart, total_citations_trend, citation_stack, radar_chart
 
 # ---------- Load data ----------
 file_urls = ["https://github.com/Coyote-Schmoyote/citation-monitoring/raw/refs/heads/main/data/2025_data/2025Q2.xlsx"]
@@ -58,26 +58,24 @@ st.subheader("Impact evaluation of documents citing EIGE")
 st.plotly_chart(radar_chart(data, formatted_months, 2025))
 
 # ---------- Impact Ranking ----------
-st.subheader("Impact Ranking of Articles")
-ranking_columns = [
-    'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference',
-    'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)',
-    'number_of_mentions_in_social_media_using_altmetric',
-    'ranking/weight'
-]
+st.subheader("Top-5 of Most Impactful Articles")
 
-ranking_rename = {
-    'location_of_the_citation:_3_body_of_the_article;_2_introduction;_1_bibliography/reference': 'Location of the citation',
-    'impact_factor_of_the_journal:_1_respectable;_2_strong;_3_very_strong_(using_free_version_of_scopus)': 'Impact factor',
-    'number_of_mentions_in_social_media_using_altmetric': 'Altmetric',
-    'ranking/weight': 'Weight'
-}
+top5_df = (
+    data[["name_of_the_document_citing_eige", "ranking/weight"]]
+    .rename(columns={
+        "name_of_the_document_citing_eige": "Document citing EIGE",
+        "ranking/weight": "Weight"
+    })
+    .sort_values(by="Weight", ascending=False)  # top weights first
+    .head(5)  # take only top 5
+    .reset_index(drop=True)  # reset index to 0-based first
+)
 
-if all(col in data.columns for col in ranking_columns):
-    st.dataframe(data[ranking_columns].rename(columns=ranking_rename), use_container_width=True)
-else:
-    missing_cols = [col for col in ranking_columns if col not in data.columns]
-    st.warning(f"Missing columns for Impact Ranking table: {missing_cols}")
+# create 1-based numbering
+top5_df.index = top5_df.index + 1
+top5_df.index.name = "Rank"
+
+st.dataframe(top5_df, use_container_width=True)
 
 # ---------- Download ----------
 doc_file_path = "data/2025-01-15 2024 report.docx"

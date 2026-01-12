@@ -6,6 +6,60 @@ import plotly.graph_objects as go
 colors = px.colors.qualitative.Pastel
 
 # -----------------------------
+# 2. Trend line chart of total citations
+# -----------------------------
+def total_citations_trend(data, months=None, year=None, *args):
+    """
+    Trend line of number of documents citing EIGE per month.
+    """
+    data = data.copy()
+    date_col = 'date_of_publication'
+    doc_col = 'name_of_the_document_citing_eige'
+
+    # Check required columns
+    if date_col not in data.columns or doc_col not in data.columns:
+        return px.line(title="Required columns missing")
+
+    # Ensure proper types
+    data[date_col] = pd.to_datetime(data[date_col], errors='coerce')
+    data = data.dropna(subset=[date_col, doc_col])
+
+    # Filter numeric months if provided
+    if args:
+        data = data[data[date_col].dt.month.isin(args)]
+
+    # Month string for x-axis
+    data['month_str'] = data[date_col].dt.strftime('%B')
+
+    # Count unique documents per month
+    agg_total = data.groupby('month_str')[doc_col].nunique().reset_index()
+    agg_total.rename(columns={doc_col: 'num_documents'}, inplace=True)
+
+    # Month ordering
+    if months and isinstance(months, str):
+        month_names = [m.strip() for m in months.split(' - ')]
+    else:
+        month_names = sorted(agg_total['month_str'].unique(), key=lambda m: pd.to_datetime(m, format='%B'))
+
+    month_mapping = {m: i for i, m in enumerate(month_names, 1)}
+    agg_total['month_order'] = agg_total['month_str'].map(lambda m: month_mapping.get(m, 99))
+    agg_total = agg_total.sort_values('month_order')
+
+    # Plot
+    fig = px.line(
+        agg_total,
+        x='month_str',
+        y='num_documents',
+        markers=True,
+        title=f"Number of Documents Trend ({year})"
+    )
+    fig.update_layout(
+        template="plotly_white",
+        xaxis_title="Month",
+        yaxis_title="Number of Documents"
+    )
+    return fig
+# -----------------------------
 # Output Type Bar Chart
 # -----------------------------
 def output_type_bar_chart(data, year):
@@ -71,13 +125,8 @@ def sunburst_chart(data, months, year, color_palette=px.colors.qualitative.Paste
 
 def trend_line_chart(data, months=None, year=None, *args):
     """
-    Trend line of citations per EIGE output type.
-    
-    Parameters:
-        data: DataFrame
-        months: Optional string of month names in order ("Jan - Feb - Mar") 
-        year: int
-        *args: numeric months to filter (1-12)
+    Stacked bar chart: total citations per EIGE output type per month.
+    Bars are stacked, but no numbers displayed inside.
     """
     if len(args) > 12:
         args = args[:12]
@@ -89,7 +138,7 @@ def trend_line_chart(data, months=None, year=None, *args):
 
     for col in [date_col, type_col, citation_col]:
         if col not in data.columns:
-            return px.line(title="Required columns missing")
+            return px.bar(title="Required columns missing")
 
     # Ensure proper types
     data[date_col] = pd.to_datetime(data[date_col], errors='coerce')
@@ -100,10 +149,10 @@ def trend_line_chart(data, months=None, year=None, *args):
     if args:
         data = data[data[date_col].dt.month.isin(args)]
 
-    # Create month string for x-axis
+    # Month string
     data['month_str'] = data[date_col].dt.strftime('%B')
 
-    # Aggregate
+    # Aggregate citations per month and type
     agg_df = data.groupby(['month_str', type_col])[citation_col].sum().reset_index()
     agg_df.rename(columns={citation_col: 'total_citations'}, inplace=True)
 
@@ -111,28 +160,30 @@ def trend_line_chart(data, months=None, year=None, *args):
     if months and isinstance(months, str):
         month_names = [m.strip() for m in months.split(' - ')]
     else:
-        month_names = sorted(agg_df['month_str'].unique(), key=lambda m: pd.to_datetime(m, format='%B').month)
+        month_names = sorted(agg_df['month_str'].unique(), key=lambda m: pd.to_datetime(m, format='%B'))
 
     month_mapping = {m: i for i, m in enumerate(month_names, 1)}
     agg_df['month_order'] = agg_df['month_str'].map(lambda m: month_mapping.get(m, 99))
     agg_df = agg_df.sort_values('month_order')
 
-    # Plot
-    fig = px.line(
+    # Stacked bar chart (without text labels)
+    fig = px.bar(
         agg_df,
         x='month_str',
         y='total_citations',
         color=type_col,
-        markers=True,
         color_discrete_sequence=px.colors.qualitative.Pastel
     )
     fig.update_layout(
         template="plotly_white",
-        title=f"Trends in EIGE's Output ({year})",
+        barmode='stack',  # stacked bars
+        title=f"Monthly Citations by EIGE Output Type ({year})",
         xaxis_title="Month",
-        yaxis_title="Citations"
+        yaxis_title="Citations",
+        legend_title="Output Type"
     )
     return fig
+
 
 # -----------------------------
 # Radar Chart (ordered by weight)

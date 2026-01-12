@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.data_loader import get_data, load_geospatial_data
-from utils.charts import annual_bar, output_type_bar_chart, sunburst_chart, trend_line_chart, radar_chart
+from utils.charts import total_citations_trend, annual_bar, output_type_bar_chart, sunburst_chart, trend_line_chart, radar_chart
 
 # -----------------------------
 # Sidebar / Branding
@@ -160,22 +160,25 @@ st.plotly_chart(radar_chart(data, formatted_months, 2024))
 # -----------------------------
 # 5. Impact Ranking
 # -----------------------------
-st.subheader("5. Impact Ranking")
-st.markdown("""
-Weights: 0.3 for citations, 0.2 for impact factor/altmetric, 0.15 for location and category.  
-Top publications include:
-- “Evidence-based policy-making in normatively divided policy fields” – University of Antwerpen
-- “Multidimensional domestic gender inequality and the global diffusion of women’s ministries, 1975–2015” – University Carlos III Madrid
-""")
+st.subheader("Top-5 of Most Impactful Articles")
 
-st.dataframe(
+top5_df = (
     data[["name_of_the_document_citing_eige", "ranking/weight"]]
-        .rename(columns={
-            "name_of_the_document_citing_eige": "Document citing EIGE",
-            "ranking/weight": "Weight"
-        }),
-    use_container_width=True
+    .rename(columns={
+        "name_of_the_document_citing_eige": "Document citing EIGE",
+        "ranking/weight": "Weight"
+    })
+    .sort_values(by="Weight", ascending=False)  # top weights first
+    .head(5)  # take only top 5
+    .reset_index(drop=True)  # reset index to 0-based first
 )
+
+# create 1-based numbering
+top5_df.index = top5_df.index + 1
+top5_df.index.name = "Rank"
+
+st.dataframe(top5_df, use_container_width=True)
+
 
 # -----------------------------
 # Download Section
