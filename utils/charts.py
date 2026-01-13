@@ -65,26 +65,51 @@ def total_citations_trend(data, months=None, year=None, *args):
 def output_type_bar_chart(data, year):
     data = data.copy()
     data.columns = data.columns.str.strip().str.lower().str.replace(" ", "_")
-    if "date_of_publication" not in data.columns:
-        return go.Figure().update_layout(title="No date column found", template="plotly_white")
 
-    data = data.dropna(subset=["date_of_publication"])
+    if "date_of_publication" not in data.columns:
+        return go.Figure().update_layout(
+            title="No date column found",
+            template="plotly_white"
+        )
+
+    # Keep NA dates, label them explicitly
     data["month_year"] = data["date_of_publication"].dt.strftime("%B %Y")
+    data["month_year"] = data["month_year"].fillna("NA")
 
     agg_col = "type_of_eige's_output_cited_agg"
     detail_col = "type_of_eige's_output_cited"
-    if agg_col not in data.columns or detail_col not in data.columns:
-        return go.Figure().update_layout(title="Required columns missing", template="plotly_white")
 
+    if agg_col not in data.columns or detail_col not in data.columns:
+        return go.Figure().update_layout(
+            title="Required columns missing",
+            template="plotly_white"
+        )
+
+    # Keep NA output types too
+    data[agg_col] = data[agg_col].fillna("NA")
+
+    # Drop only explicit 'unknown', not NA
     data = data[~data[agg_col].str.lower().eq("unknown")]
 
+    # Resolve "other" → detailed label where available
     other_mask = data[agg_col].str.lower() == "other"
-    data.loc[other_mask, agg_col] = data.loc[other_mask, detail_col]
+    data.loc[other_mask, agg_col] = (
+        data.loc[other_mask, detail_col]
+        .fillna("Other (unspecified)")
+    )
 
-    topic_counts = data[agg_col].value_counts().rename_axis("output_type").reset_index(name="count")
+    topic_counts = (
+        data[agg_col]
+        .value_counts()
+        .rename_axis("output_type")
+        .reset_index(name="count")
+    )
 
     base_palette = px.colors.qualitative.Safe
-    extended_palette = (base_palette * ((len(topic_counts) // len(base_palette)) + 1))[:len(topic_counts)]
+    extended_palette = (
+        base_palette * ((len(topic_counts) // len(base_palette)) + 1)
+    )[:len(topic_counts)]
+
     color_map = dict(zip(topic_counts["output_type"], extended_palette))
 
     fig = px.bar(
@@ -93,9 +118,19 @@ def output_type_bar_chart(data, year):
         y="count",
         color="output_type",
         color_discrete_map=color_map,
-        labels={"output_type": "EIGE output", "count": "Number of mentions"},
+        labels={
+            "output_type": "EIGE output",
+            "count": "Number of mentions"
+        },
     )
-    fig.update_layout(template="plotly_white", xaxis_title=None, yaxis_title="Number of mentions", legend_title_text="EIGE output")
+
+    fig.update_layout(
+        template="plotly_white",
+        xaxis_title=None,
+        yaxis_title="Number of mentions",
+        legend_title_text="EIGE output"
+    )
+
     return fig
 
 # -----------------------------
