@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 colors = px.colors.qualitative.Pastel
 
 # -----------------------------
-# 2. Trend line chart of total citations
+# 2. bar chart of total citations
 # -----------------------------
 def total_citations_trend(data, months=None, year=None, *args):
     """
