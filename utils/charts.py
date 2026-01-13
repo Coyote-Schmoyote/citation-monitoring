@@ -347,28 +347,56 @@ def annual_bar(data, year):
 # -----------------------------
 def citation_stack(data, doc_col='name_of_the_document_citing_eige', months='', year=''):
     if data.empty:
-        return go.Figure().update_layout(title="No data available", template="plotly_white")
+        return go.Figure().update_layout(
+            title="No data available",
+            template="plotly_white"
+        )
 
     data = data.copy()
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
     doc_col = doc_col.lower().replace(' ', '_')
-    if doc_col not in data.columns:
-        return go.Figure().update_layout(title=f"Column '{doc_col}' not found", template="plotly_white")
 
-    df_counts = data.groupby(doc_col).size().reset_index(name='count')
+    if doc_col not in data.columns:
+        return go.Figure().update_layout(
+            title=f"Column '{doc_col}' not found",
+            template="plotly_white"
+        )
+
+    # Count mentions per document
+    df_counts = (
+        data.groupby(doc_col)
+        .size()
+        .reset_index(name='count')
+    )
+
     fig = go.Figure()
-    for i, row in df_counts.iterrows():
-        doc_name = str(row[doc_col])
-        truncated_name = doc_name[:15] + "..." if len(doc_name) > 15 else doc_name
-        hover_text = f"Document: {doc_name}<br>Mentions: {row['count']}"
-        fig.add_trace(go.Bar(
-            x=[truncated_name],
-            y=[row['count']],
-            name=doc_name,
-            hoverinfo='text',
-            text=hover_text,
-            marker=dict(color=colors[i % len(colors)])
-        ))
-    fig.update_layout(barmode='stack', xaxis_title="Article", yaxis_title="Mentions", template="plotly_white", showlegend=False)
+
+    for _, row in df_counts.iterrows():
+        fig.add_trace(
+            go.Bar(
+                x=[""],  # <- single anonymous category (no titles)
+                y=[row["count"]],
+                hovertemplate=(
+                    f"<b>{row[doc_col]}</b><br>"
+                    f"Mentions: {int(row['count'])}<extra></extra>"
+                ),
+                showlegend=False
+            )
+        )
+
+    fig.update_layout(
+        barmode="stack",
+        template="plotly_white",
+        xaxis=dict(
+            showticklabels=False,
+            title=""
+        ),
+        yaxis=dict(
+            title="Mentions",
+            tickformat="d"  # full numbers only
+        ),
+        title=f"Distribution of Mentions Across Documents ({year})"
+    )
+
     return fig
 

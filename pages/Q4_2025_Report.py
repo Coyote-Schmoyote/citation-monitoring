@@ -30,10 +30,7 @@ months_names = data['date_of_publication'].dt.strftime('%B').dropna().unique()
 months_names_sorted = sorted(months_names, key=lambda x: pd.to_datetime(x, format='%B').month)
 months = " - ".join(months_names_sorted)
 
-# Call trend line
-st.subheader("Trend of EIGE Output Citations")
 st.plotly_chart(trend_line_chart(data, months, 2025))
-
 
 # ---------- Bar chart ----------
 st.subheader("EIGE Output Type")
