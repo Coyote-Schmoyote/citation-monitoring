@@ -104,6 +104,7 @@ def total_citations_trend(
     fig.update_traces(text=None)
 
     return fig
+
 # -----------------------------
 # Output Type Bar Chart
 # -----------------------------
