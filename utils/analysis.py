@@ -18,7 +18,7 @@ def drop_columns_and_handle_missing(data):
         'name_of_the_document_citing_eige'
     ]
     data = data.drop(columns=columns_to_drop, errors='ignore')
-    data = data.dropna()  # Remove rows with missing values
+    # data = data.dropna()  # Remove rows with missing values
     return data
 
 # Step 2: Encode categorical columns

@@ -40,19 +40,18 @@ def get_data(file_urls):
         df[f"{column}_agg"] = df[column].replace(to_replace, "Other")
 
     if "date_of_publication" in data.columns:
-        nan_mask = (
-            data["date_of_publication"].isna()
-            & data["date_of_publication"].shift().isna()
-        )
-        if nan_mask.any():
-            data = data.iloc[:nan_mask.idxmax()]
-
+        last_valid_idx = data["date_of_publication"].last_valid_index()
+        
+        if last_valid_idx is not None:
+            data = data.loc[:last_valid_idx]
+            
         data["date_of_publication"] = pd.to_datetime(
             data["date_of_publication"],
             format="mixed",
             errors="coerce",
             dayfirst=True
-        )
+    )
+
 
     if "url_of_the_document_citing_eige" in data.columns:
         data.drop(columns=["url_of_the_document_citing_eige"], inplace=True)
