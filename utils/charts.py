@@ -8,56 +8,101 @@ colors = px.colors.qualitative.Pastel
 # -----------------------------
 # 2. bar chart of total citations
 # -----------------------------
-def total_citations_trend(data, months=None, year=None, *args):
+def total_citations_trend(
+    data,
+    months=None,
+    year=None,
+    *args,
+    mode="documents"  # "documents" | "avg_citations"
+):
     """
-    Trend line of number of documents citing EIGE per month.
+    Trend line per month.
+    mode="documents"      → number of documents citing EIGE
+    mode="avg_citations"  → average Google Scholar citations per article
     """
+
     data = data.copy()
     date_col = 'date_of_publication'
     doc_col = 'name_of_the_document_citing_eige'
+    citation_col = 'number_of_citations_(using_google_scholar)'
 
-    # Check required columns
-    if date_col not in data.columns or doc_col not in data.columns:
+    # Required columns
+    required = [date_col, doc_col]
+    if mode == "avg_citations":
+        required.append(citation_col)
+
+    if not all(col in data.columns for col in required):
         return px.line(title="Required columns missing")
 
-    # Ensure proper types
+    # Types
     data[date_col] = pd.to_datetime(data[date_col], errors='coerce')
     data = data.dropna(subset=[date_col, doc_col])
 
-    # Filter numeric months if provided
+    if mode == "avg_citations":
+        data[citation_col] = pd.to_numeric(data[citation_col], errors='coerce')
+        data = data.dropna(subset=[citation_col])
+
+    # Filter months
     if args:
         data = data[data[date_col].dt.month.isin(args)]
 
-    # Month string for x-axis
     data['month_str'] = data[date_col].dt.strftime('%B')
 
-    # Count unique documents per month
-    agg_total = data.groupby('month_str')[doc_col].nunique().reset_index()
-    agg_total.rename(columns={doc_col: 'num_documents'}, inplace=True)
+    # Aggregate
+    if mode == "documents":
+        agg = (
+            data.groupby('month_str')[doc_col]
+            .nunique()
+            .reset_index(name='value')
+        )
+        y_title = "Number of documents"
+        title = f"Number of Documents Citing EIGE ({year})"
+
+    else:  # avg_citations
+        agg = (
+            data.groupby(['month_str', doc_col])[citation_col]
+            .mean()
+            .reset_index()
+            .groupby('month_str')[citation_col]
+            .mean()
+            .reset_index(name='value')
+        )
+        y_title = "Average citations per article"
+        title = f"Average Google Scholar Citations per Article ({year})"
 
     # Month ordering
     if months and isinstance(months, str):
         month_names = [m.strip() for m in months.split(' - ')]
     else:
-        month_names = sorted(agg_total['month_str'].unique(), key=lambda m: pd.to_datetime(m, format='%B'))
+        month_names = sorted(
+            agg['month_str'].unique(),
+            key=lambda m: pd.to_datetime(m, format='%B').month
+        )
 
-    month_mapping = {m: i for i, m in enumerate(month_names, 1)}
-    agg_total['month_order'] = agg_total['month_str'].map(lambda m: month_mapping.get(m, 99))
-    agg_total = agg_total.sort_values('month_order')
+    agg['month_order'] = agg['month_str'].map(
+        {m: i for i, m in enumerate(month_names)}
+    )
+    agg = agg.sort_values('month_order')
 
     # Plot
     fig = px.line(
-        agg_total,
+        agg,
         x='month_str',
-        y='num_documents',
+        y='value',
         markers=True,
-        title=f"Number of Documents Trend ({year})"
+        title=title
     )
+
     fig.update_layout(
         template="plotly_white",
         xaxis_title="Month",
-        yaxis_title="Number of Documents"
+        yaxis_title=y_title,
+        yaxis=dict(tickformat=",d")  # integers only
     )
+
+    # No labels on points
+    fig.update_traces(text=None)
+
     return fig
 # -----------------------------
 # Output Type Bar Chart
