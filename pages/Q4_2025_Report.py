@@ -15,7 +15,7 @@ unique_months = sorted([m for m in data["month"].unique() if m], key=lambda x: p
 formatted_months = " - ".join(unique_months)
 
 # ---------- Header ----------
-st.header(f"Q3 2025 Report ({formatted_months})")
+st.header(f"Q4 2025 Report ({formatted_months})")
 st.write(f"Number of mentions: {len(data)}")
 st.write(f"Number of unique documents: {data['name_of_the_document_citing_eige'].nunique()}")
 
